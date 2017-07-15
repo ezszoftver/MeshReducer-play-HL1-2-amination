@@ -1,0 +1,219 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using Tao.OpenGl;
+using Tao.Platform.Windows;
+using GlmNet;
+
+using MeshReducer.OBJLoader;
+
+namespace MeshReducer
+{
+    public partial class Form1 : Form
+    {
+        private static IntPtr hDC;
+        private static IntPtr hRC;
+
+        private OBJLoader.OBJLoader obj;
+        private bool is_loaded = false;
+
+        public Form1()
+        {
+            InitializeComponent();
+
+            obj = null;
+        }
+        
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+        }
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+        }
+
+        private void Form1_KeyUp(object sender, KeyEventArgs e)
+        {
+        }
+
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            Gl.glViewport(0, 0, ClientSize.Width, ClientSize.Height - menuStrip1.Height);
+            Gl.glClearColor(0.5f, 0.5f, 1.0f, 0.0f);
+            Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
+
+            Gl.glMatrixMode(Gl.GL_PROJECTION);
+            Gl.glLoadIdentity();
+            Glu.gluPerspective(45, ClientSize.Width / (double)(ClientSize.Height - menuStrip1.Height), 1, 100000);
+
+            Gl.glMatrixMode(Gl.GL_MODELVIEW);
+            Gl.glLoadIdentity();
+            Glu.gluLookAt(0,0,10000, 0,0,0, 0,1,0);
+
+            if (is_loaded) {
+                Gl.glPushMatrix();
+                Gl.glRotatef(-90, 1, 0, 0);
+                foreach (OBJLoader.OBJLoader.Material material in obj.materials) {
+
+                    Gl.glBindTexture(Gl.GL_TEXTURE_2D, material.id_texture[0]);
+                    Gl.glBegin(Gl.GL_TRIANGLES);
+                    for (int i = 0; i < material.indices.Count; i++)
+                    {
+                        vec3 v = obj.vertices[ material.indices[i].id_vertex];
+                        vec2 t = obj.text_coords[material.indices[i].id_textcoord];
+                        Gl.glTexCoord2f(t.x, t.y);
+                        Gl.glVertex3f(v.x, v.y, v.z);
+                    }
+                    Gl.glEnd();
+
+                }
+                Gl.glPopMatrix();
+            }
+
+            Gdi.SwapBuffers(hDC);
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            Gdi.PIXELFORMATDESCRIPTOR pfd = new Gdi.PIXELFORMATDESCRIPTOR();    // pfd Tells Windows How We Want Things To Be
+            pfd.nSize = (short)Marshal.SizeOf(pfd);                            // Size Of This Pixel Format Descriptor
+            pfd.nVersion = 1;                                                   // Version Number
+            pfd.dwFlags = Gdi.PFD_DRAW_TO_WINDOW |                              // Format Must Support Window
+                Gdi.PFD_SUPPORT_OPENGL |                                        // Format Must Support OpenGL
+                Gdi.PFD_DOUBLEBUFFER;                                           // Format Must Support Double Buffering
+            pfd.iPixelType = (byte)Gdi.PFD_TYPE_RGBA;                          // Request An RGBA Format
+            pfd.cColorBits = (byte)32;                                       // Select Our Color Depth
+            pfd.cRedBits = 0;                                                   // Color Bits Ignored
+            pfd.cRedShift = 0;
+            pfd.cGreenBits = 0;
+            pfd.cGreenShift = 0;
+            pfd.cBlueBits = 0;
+            pfd.cBlueShift = 0;
+            pfd.cAlphaBits = 0;                                                 // No Alpha Buffer
+            pfd.cAlphaShift = 0;                                                // Shift Bit Ignored
+            pfd.cAccumBits = 0;                                                 // No Accumulation Buffer
+            pfd.cAccumRedBits = 0;                                              // Accumulation Bits Ignored
+            pfd.cAccumGreenBits = 0;
+            pfd.cAccumBlueBits = 0;
+            pfd.cAccumAlphaBits = 0;
+            pfd.cDepthBits = 24;                                                // 16Bit Z-Buffer (Depth Buffer)
+            pfd.cStencilBits = 0;                                               // No Stencil Buffer
+            pfd.cAuxBuffers = 0;                                                // No Auxiliary Buffer
+            pfd.iLayerType = (byte)Gdi.PFD_MAIN_PLANE;                         // Main Drawing Layer
+            pfd.bReserved = 0;                                                  // Reserved
+            pfd.dwLayerMask = 0;                                                // Layer Masks Ignored
+            pfd.dwVisibleMask = 0;
+            pfd.dwDamageMask = 0;
+
+            hDC = User.GetDC(this.Handle);                                      // Attempt To Get A Device Context
+            if (hDC == IntPtr.Zero)
+            {                                            // Did We Get A Device Context?                                                // Reset The Display
+                MessageBox.Show("Can't Create A GL Device Context.", "ERROR",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.Close();
+            }
+
+            int pixelFormat = Gdi.ChoosePixelFormat(hDC, ref pfd);                  // Attempt To Find An Appropriate Pixel Format
+            if (pixelFormat == 0)
+            {                                              // Did Windows Find A Matching Pixel Format?                                                 // Reset The Display
+                MessageBox.Show("Can't Find A Suitable PixelFormat.", "ERROR",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.Close();
+            }
+
+            if (!Gdi.SetPixelFormat(hDC, pixelFormat, ref pfd))
+            {                // Are We Able To Set The Pixel Format?                                              // Reset The Display
+                MessageBox.Show("Can't Set The PixelFormat.", "ERROR",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.Close();
+            }
+
+            hRC = Wgl.wglCreateContext(hDC);                                    // Attempt To Get The Rendering Context
+            if (hRC == IntPtr.Zero)
+            {                                            // Are We Able To Get A Rendering Context?                                                // Reset The Display
+                MessageBox.Show("Can't Create A GL Rendering Context.", "ERROR",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.Close();
+            }
+
+            if (!Wgl.wglMakeCurrent(hDC, hRC))
+            {                                 // Try To Activate The Rendering Context                                                // Reset The Display
+                MessageBox.Show("Can't Activate The GL Rendering Context.", "ERROR",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.Close();
+            }
+            Gl.glViewport(0, 0, ClientSize.Width, ClientSize.Height - menuStrip1.Height);
+
+            Gl.glEnable(Gl.GL_DEPTH_TEST);
+            Gl.glEnable(Gl.GL_TEXTURE_2D);
+
+            this.timer1.Start();
+        }
+
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            is_loaded = false;
+
+            if (obj != null) {
+                foreach (OBJLoader.OBJLoader.Material material in obj.materials) {
+                    Gl.glDeleteTextures(1, material.id_texture);
+                }
+
+                obj.Release();
+                obj = null;
+                System.GC.Collect();
+            }
+            System.Console.Write("Loading ... ");
+            obj = new OBJLoader.OBJLoader();
+            if (obj == null) {
+                return;
+            }
+
+            obj.Load("Transition/", "transition.obj");
+
+            // load textures
+            foreach (OBJLoader.OBJLoader.Material material in obj.materials) {
+                Bitmap textureImage = new Bitmap("Transition/" + material.texture_filename);
+                textureImage.RotateFlip(RotateFlipType.RotateNoneFlipY);
+                Rectangle rectangle = new Rectangle(0, 0, textureImage.Width, textureImage.Height);
+                BitmapData bitmapData = textureImage.LockBits(rectangle, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+                
+                Gl.glGenTextures(1, material.id_texture);
+                Gl.glBindTexture(Gl.GL_TEXTURE_2D, material.id_texture[0]);
+
+                float[] maxAnisotropy = new float[1];
+                Gl.glGetFloatv(Gl.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy);
+                Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy[0]);
+
+                Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_LINEAR);
+                Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_LINEAR_MIPMAP_LINEAR);
+                Glu.gluBuild2DMipmaps(Gl.GL_TEXTURE_2D, Gl.GL_RGBA8, textureImage.Width, textureImage.Height, Gl.GL_BGRA, Gl.GL_UNSIGNED_BYTE, bitmapData.Scan0);
+                
+                textureImage.UnlockBits(bitmapData);
+                textureImage.Dispose();
+            }
+
+            System.Console.WriteLine("OK");
+            is_loaded = true;
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+    }
+}
