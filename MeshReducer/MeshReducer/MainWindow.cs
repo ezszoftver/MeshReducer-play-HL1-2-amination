@@ -19,7 +19,7 @@ using MeshReducer.OBJLoader;
 
 namespace MeshReducer
 {
-    public partial class Form1 : Form
+    public partial class MainWindow : Form
     {
         private static IntPtr hDC;
         private static IntPtr hRC;
@@ -27,7 +27,7 @@ namespace MeshReducer
         private OBJLoader.OBJLoader obj;
         private bool is_loaded = false;
 
-        public Form1()
+        public MainWindow()
         {
             InitializeComponent();
 
@@ -52,9 +52,19 @@ namespace MeshReducer
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            Gl.glViewport(0, 0, ClientSize.Width, ClientSize.Height - menuStrip1.Height);
+            tabControl1.SetBounds(0, ClientSize.Height - tabControl1.Height, ClientSize.Width, tabControl1.Height);
+
+            Gl.glViewport(0, tabControl1.Height, ClientSize.Width, ClientSize.Height - menuStrip1.Height - tabControl1.Height);
             Gl.glClearColor(0.5f, 0.5f, 1.0f, 0.0f);
             Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
+
+//            Gl.glBegin(Gl.GL_TRIANGLES);
+//            {
+//                Gl.glColor3f(1, 0, 0); Gl.glVertex2f(+0, +1);
+//                Gl.glColor3f(0, 1, 0); Gl.glVertex2f(-1, -1);
+//                Gl.glColor3f(0, 0, 1); Gl.glVertex2f(+1, -1);
+//            }
+//            Gl.glEnd();
 
             Gl.glMatrixMode(Gl.GL_PROJECTION);
             Gl.glLoadIdentity();
@@ -156,7 +166,6 @@ namespace MeshReducer
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
             }
-            Gl.glViewport(0, 0, ClientSize.Width, ClientSize.Height - menuStrip1.Height);
 
             Gl.glEnable(Gl.GL_DEPTH_TEST);
             Gl.glEnable(Gl.GL_TEXTURE_2D);

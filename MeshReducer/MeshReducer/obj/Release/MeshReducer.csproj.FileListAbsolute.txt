@@ -10,3 +10,15 @@ C:\Users\ez88\Desktop\MeshReducer\MeshReducer\obj\Release\MeshReducer.pdb
 C:\Users\ez88\Desktop\MeshReducer\MeshReducer\obj\Release\MeshReducer.Form1.resources
 c:\Users\ez88\Desktop\MeshReducer\MeshReducer\bin\Release\Tao.Platform.Windows.dll
 C:\Users\ez88\Desktop\MeshReducer\MeshReducer\bin\Release\GlmNet.dll
+C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\bin\Release\MeshReducer.exe.config
+C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\obj\Release\MeshReducer.exe
+C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\obj\Release\MeshReducer.pdb
+C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\bin\Release\MeshReducer.exe
+C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\bin\Release\MeshReducer.pdb
+C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\bin\Release\GlmNet.dll
+C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\bin\Release\Tao.OpenGl.dll
+C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\bin\Release\Tao.Platform.Windows.dll
+C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\obj\Release\MeshReducer.csprojResolveAssemblyReference.cache
+C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\obj\Release\MeshReducer.MainWindow.resources
+C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\obj\Release\MeshReducer.Properties.Resources.resources
+C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\obj\Release\MeshReducer.csproj.GenerateResource.Cache
