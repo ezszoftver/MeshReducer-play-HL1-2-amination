@@ -12,6 +12,7 @@ namespace MeshReducer.OBJLoader
 {
     class OBJLoader
     {
+        public vec3 min, max;
         public List<vec3> vertices;
         public List<vec2> text_coords;
 
@@ -55,6 +56,8 @@ namespace MeshReducer.OBJLoader
 
         public OBJLoader()
         {
+            min = new vec3(0, 0, 0);
+            max = new vec3(0, 0, 0);
             vertices = new List<vec3>();
             text_coords = new List<vec2>();
             material_to_id = new Dictionary<string, UInt32>();
@@ -64,8 +67,10 @@ namespace MeshReducer.OBJLoader
 
         public Boolean Load(string path, string filename)
         {
-            string[] lines = File.ReadAllText(path + filename).Split(new char[] {'\r', '\n'});
+            string[] lines = File.ReadAllText(path + @"\" + filename).Split(new char[] {'\r', '\n'});
 
+            min = new vec3(+1000000.0f, +1000000.0f, +1000000.0f);
+            min = new vec3(-1000000.0f, -1000000.0f, -1000000.0f);
             UInt32 material_id = 0;
 
             foreach (string line in lines) {
@@ -78,6 +83,16 @@ namespace MeshReducer.OBJLoader
                     case ("v"): {
                             vec3 v = new vec3(float.Parse(words[1]), float.Parse(words[2]), float.Parse(words[3]));
                             vertices.Add(v);
+
+                            // min
+                            if (v.x < min.x) { min.x = v.x; }
+                            if (v.y < min.y) { min.y = v.y; }
+                            if (v.z < min.z) { min.z = v.z; }
+                            // max
+                            if (max.x < v.x) { max.x = v.x; }
+                            if (max.y < v.y) { max.y = v.y; }
+                            if (max.z < v.z) { max.z = v.z; }
+
                             break;
                         }
                     case ("vt"): {
@@ -86,7 +101,7 @@ namespace MeshReducer.OBJLoader
                             break;
                         }
                     case ("mtllib"): {
-                            string[] mtl_lines = File.ReadAllText(path + words[1]).Split(new char[] {'\r', '\n'});
+                            string[] mtl_lines = File.ReadAllText(path + @"\" + words[1]).Split(new char[] {'\r', '\n'});
 
                             string material = "";
                             string texture_name = "";
