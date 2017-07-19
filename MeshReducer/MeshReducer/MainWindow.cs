@@ -16,14 +16,18 @@ using Tao.OpenGl;
 using Tao.Platform.Windows;
 using GlmNet;
 
+using MeshReducer.Camera;
 using MeshReducer.OBJLoader;
 
 namespace MeshReducer
 {
-    public partial class MainWindow : Form
+    public partial class MainWindow : Form, IMessageFilter
     {
         private static IntPtr hDC;
         private static IntPtr hRC;
+        DateTime elapsed_datetime;
+        DateTime current_datetime;
+        Camera.Camera camera;
 
         private OBJLoader.OBJLoader obj;
         private bool is_loaded = false;
@@ -32,18 +36,13 @@ namespace MeshReducer
         {
             InitializeComponent();
 
+            Application.AddMessageFilter(this);
+
             obj = null;
+            camera = new Camera.Camera();
         }
         
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        {
-        }
-
-        private void Form1_KeyDown(object sender, KeyEventArgs e)
-        {
-        }
-
-        private void Form1_KeyUp(object sender, KeyEventArgs e)
         {
         }
 
@@ -51,7 +50,7 @@ namespace MeshReducer
         {
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
+        private void ResizeComponents()
         {
             // tab
             tabControl1.SetBounds(0, ClientSize.Height - tabControl1.Height, ClientSize.Width, tabControl1.Height);
@@ -83,7 +82,37 @@ namespace MeshReducer
                     label_reduce.Location = new Point(progressBar_reduce.Location.X + ((progressBar_reduce.Width - label_reduce.Width) / 2), progressBar_reduce.Location.Y + ((progressBar_reduce.Height - label_reduce.Height) / 2));
                 }
             }
+        }
 
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            ResizeComponents();
+
+            // update
+            elapsed_datetime = current_datetime;
+            current_datetime = DateTime.Now;
+            TimeSpan diff = current_datetime - elapsed_datetime;
+            float dt = (float)diff.TotalMilliseconds / 1000.0f;
+
+            // camera
+            // keyboard
+            if (key_pressed_up) camera.MoveUp(dt);
+            if (key_pressed_down) camera.MoveDown(dt);
+            if (key_pressed_right) camera.MoveRight(dt);
+            if (key_pressed_left) camera.MoveLeft(dt);
+            // mouse
+            if (mouse_pressed_right_button)
+            {
+                int center_x = this.Bounds.X + (this.Bounds.Width / 2);
+                int center_y = this.Bounds.Y + (this.Bounds.Height / 2);
+
+                int diff_x = Cursor.Position.X - center_x;
+                int diff_y = Cursor.Position.Y - center_y;
+                Cursor.Position = new Point(center_x, center_y);
+
+                camera.RotateDir((float)diff_x, (float)diff_y);
+            }
+            camera.Update();
 
             Gl.glViewport(0, tabControl1.Height, ClientSize.Width, ClientSize.Height - menuStrip1.Height - tabControl1.Height);
             Gl.glClearColor(0.5f, 0.5f, 1.0f, 0.0f);
@@ -99,11 +128,12 @@ namespace MeshReducer
 
             Gl.glMatrixMode(Gl.GL_PROJECTION);
             Gl.glLoadIdentity();
-            Glu.gluPerspective(45, ClientSize.Width / (double)(ClientSize.Height - menuStrip1.Height), 1, 100000);
+            Glu.gluPerspective(45, ClientSize.Width / (double)(ClientSize.Height - menuStrip1.Height), 1, 10000000.0f);
 
             Gl.glMatrixMode(Gl.GL_MODELVIEW);
             Gl.glLoadIdentity();
-            Glu.gluLookAt(0,0,10000, 0,0,0, 0,1,0);
+            vec3 at = camera.pos + camera.dir;
+            Glu.gluLookAt(camera.pos.x, camera.pos.y, camera.pos.z, at.x, at.y, at.z, camera.up.x, camera.up.y, camera.up.z);
 
             if (is_loaded) {
                 Gl.glPushMatrix();
@@ -206,6 +236,7 @@ namespace MeshReducer
             Gl.glEnable(Gl.GL_TEXTURE_2D);
 
             this.timer1.Start();
+            current_datetime = elapsed_datetime = DateTime.Now;
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -253,11 +284,6 @@ namespace MeshReducer
             string filename = theDialog.SafeFileName;
             string directory = Path.GetDirectoryName(fullpath);
             string extension = Path.GetExtension(fullpath).ToLower();
-
-            System.Console.WriteLine("Extension: " + extension);
-            System.Console.WriteLine("fullpath: " + fullpath);
-            System.Console.WriteLine("filename: " + filename);
-            System.Console.WriteLine("directory: " + directory);
 
             if (extension != ".obj") {
                 return;
@@ -331,7 +357,21 @@ namespace MeshReducer
             trackBar_rotate_y.Value = 0;
             trackBar_rotate_z.Value = 0;
 
+            // set up camera
+            vec3 center = new vec3((obj.min + obj.max) / 2.0f);
+            float radius = glm_length(center, obj.max);
+            camera.pos = center + (new vec3(0, 0, 1) * radius * 2.0f);
+            camera.dir = glm.normalize(center - camera.pos);
+            camera.SetVelocity(radius / 5.0f);
+
             is_loaded = true;
+        }
+
+        float glm_length(vec3 a, vec3 b)
+        {
+            vec3 v = b - a;
+            float length = (float)Math.Sqrt((float)(v.x*v.x + v.y*v.y + v.z*v.z));
+            return length;
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -347,6 +387,111 @@ namespace MeshReducer
         private void progressBar_reduce_Click(object sender, EventArgs e)
         {
 
+        }
+
+        bool mouse_pressed_right_button = false;
+        private void MainWindow_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                int center_x = this.Bounds.X + (this.Bounds.Width / 2);
+                int center_y = this.Bounds.Y + (this.Bounds.Height / 2);
+
+                Cursor.Position = new Point(center_x, center_y);
+                mouse_pressed_right_button = true;
+            }
+        }
+
+        private void MainWindow_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                mouse_pressed_right_button = false;
+            }
+        }
+
+        private void MainWindow_MouseMove(object sender, MouseEventArgs e)
+        {           
+        }
+
+        bool key_pressed_up = false;
+        bool key_pressed_down = false;
+        bool key_pressed_right = false;
+        bool key_pressed_left = false;
+
+        const int WM_KEYDOWN = 0x100;
+        const int WM_KEYUP = 0x101;
+        public bool PreFilterMessage(ref Message m)
+        {
+            // up
+            if (m.Msg == WM_KEYDOWN && (Keys)m.WParam.ToInt32() == Keys.W)
+            {
+                key_pressed_up = true;
+                return true;
+            }
+            if (m.Msg == WM_KEYUP && (Keys)m.WParam.ToInt32() == Keys.W)
+            {
+                key_pressed_up = false;
+                return true;
+            }
+
+            // down
+            if (m.Msg == WM_KEYDOWN && (Keys)m.WParam.ToInt32() == Keys.S)
+            {
+                key_pressed_down = true;
+                return true;
+            }
+            if (m.Msg == WM_KEYUP && (Keys)m.WParam.ToInt32() == Keys.S)
+            {
+                key_pressed_down = false;
+                return true;
+            }
+
+            // right
+            if (m.Msg == WM_KEYDOWN && (Keys)m.WParam.ToInt32() == Keys.D)
+            {
+                key_pressed_right = true;
+                return true;
+            }
+            if (m.Msg == WM_KEYUP && (Keys)m.WParam.ToInt32() == Keys.D)
+            {
+                key_pressed_right = false;
+                return true;
+            }
+
+            // left
+            if (m.Msg == WM_KEYDOWN && (Keys)m.WParam.ToInt32() == Keys.A)
+            {
+                key_pressed_left = true;
+                return true;
+            }
+            if (m.Msg == WM_KEYUP && (Keys)m.WParam.ToInt32() == Keys.A)
+            {
+                key_pressed_left = false;
+                return true;
+            }
+
+            return false;
+        }
+
+        private void MainWindow_Activated(object sender, EventArgs e)
+        {
+            key_pressed_up = false;
+            key_pressed_down = false;
+            key_pressed_right = false;
+            key_pressed_left = false;
+
+            mouse_pressed_right_button = false;
+        }
+
+        private void MainWindow_Deactivate(object sender, EventArgs e)
+        {
+            key_pressed_up = false;
+            key_pressed_down = false;
+            key_pressed_right = false;
+            key_pressed_left = false;
+
+            mouse_pressed_right_button = false;
         }
     }
 }

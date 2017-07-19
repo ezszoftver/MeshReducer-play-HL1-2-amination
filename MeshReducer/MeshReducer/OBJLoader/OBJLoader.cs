@@ -70,7 +70,7 @@ namespace MeshReducer.OBJLoader
             string[] lines = File.ReadAllText(path + @"\" + filename).Split(new char[] {'\r', '\n'});
 
             min = new vec3(+1000000.0f, +1000000.0f, +1000000.0f);
-            min = new vec3(-1000000.0f, -1000000.0f, -1000000.0f);
+            max = new vec3(-1000000.0f, -1000000.0f, -1000000.0f);
             UInt32 material_id = 0;
 
             foreach (string line in lines) {
