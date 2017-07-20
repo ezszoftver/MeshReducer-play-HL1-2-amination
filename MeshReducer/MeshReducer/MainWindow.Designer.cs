@@ -55,9 +55,11 @@
             this.label3 = new System.Windows.Forms.Label();
             this.trackBar_rotate_x = new System.Windows.Forms.TrackBar();
             this.label2 = new System.Windows.Forms.Label();
+            this.button3 = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabOBJ.SuspendLayout();
+            this.tabSMD.SuspendLayout();
             this.tabOptions.SuspendLayout();
             this.groupBox_options_reduce.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_reduce_percent)).BeginInit();
@@ -179,6 +181,7 @@
             // 
             // tabSMD
             // 
+            this.tabSMD.Controls.Add(this.button3);
             this.tabSMD.Location = new System.Drawing.Point(4, 22);
             this.tabSMD.Name = "tabSMD";
             this.tabSMD.Padding = new System.Windows.Forms.Padding(3);
@@ -316,6 +319,16 @@
             this.label2.TabIndex = 0;
             this.label2.Text = "X Axis";
             // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(6, 6);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(105, 23);
+            this.button3.TabIndex = 0;
+            this.button3.Text = "Load Reference";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click_1);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -328,7 +341,6 @@
             this.Name = "MainWindow";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Mesh Reducer v1.0";
-            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Activated += new System.EventHandler(this.MainWindow_Activated);
             this.Deactivate += new System.EventHandler(this.MainWindow_Deactivate);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
@@ -342,6 +354,7 @@
             this.tabControl1.ResumeLayout(false);
             this.tabOBJ.ResumeLayout(false);
             this.tabOBJ.PerformLayout();
+            this.tabSMD.ResumeLayout(false);
             this.tabOptions.ResumeLayout(false);
             this.groupBox_options_reduce.ResumeLayout(false);
             this.groupBox_options_reduce.PerformLayout();
@@ -384,6 +397,7 @@
         private System.Windows.Forms.GroupBox groupBox_options_reduce;
         private System.Windows.Forms.Button button_calc;
         private System.Windows.Forms.TrackBar trackBar_reduce_percent;
+        private System.Windows.Forms.Button button3;
     }
 }
 

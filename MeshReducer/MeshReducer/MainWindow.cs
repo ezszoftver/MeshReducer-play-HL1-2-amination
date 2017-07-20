@@ -18,6 +18,8 @@ using GlmNet;
 
 using MeshReducer.Camera;
 using MeshReducer.OBJLoader;
+using MeshReducer.SMDLoader;
+using MeshReducer.Texture;
 
 namespace MeshReducer
 {
@@ -30,7 +32,11 @@ namespace MeshReducer
         Camera.Camera camera;
 
         private OBJLoader.OBJLoader obj;
+        private SMDLoader.SMDLoader smd;
         private bool is_loaded = false;
+
+        vec3 center;
+        float radius;
 
         public MainWindow()
         {
@@ -39,6 +45,9 @@ namespace MeshReducer
             Application.AddMessageFilter(this);
 
             obj = null;
+            smd = null;
+            center = new vec3(0,0,0);
+            radius = 1.0f;
             camera = new Camera.Camera();
         }
         
@@ -114,7 +123,10 @@ namespace MeshReducer
             }
             camera.Update();
 
-            Gl.glViewport(0, tabControl1.Height, ClientSize.Width, ClientSize.Height - menuStrip1.Height - tabControl1.Height);
+            vec2 pos = new vec2(0, tabControl1.Height);
+            vec2 size = new vec2(ClientSize.Width, ClientSize.Height - menuStrip1.Height - tabControl1.Height);
+            Gl.glViewport((int)pos.x, (int)pos.y, (int)size.x, (int)size.y);
+
             Gl.glClearColor(0.5f, 0.5f, 1.0f, 0.0f);
             Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
 
@@ -128,7 +140,7 @@ namespace MeshReducer
 
             Gl.glMatrixMode(Gl.GL_PROJECTION);
             Gl.glLoadIdentity();
-            Glu.gluPerspective(45, ClientSize.Width / (double)(ClientSize.Height - menuStrip1.Height), 1, 10000000.0f);
+            Glu.gluPerspective(45, size.x / size.y, radius / 1000.0f, radius * 10.0f);
 
             Gl.glMatrixMode(Gl.GL_MODELVIEW);
             Gl.glLoadIdentity();
@@ -142,9 +154,10 @@ namespace MeshReducer
                 Gl.glRotatef(trackBar_rotate_y.Value, 0, 1, 0);
                 Gl.glRotatef(trackBar_rotate_x.Value, 1, 0, 0);
 
-                foreach (OBJLoader.OBJLoader.Material material in obj.materials) {
+                // OBJ
+                /*foreach (OBJLoader.OBJLoader.Material material in obj.materials) {
 
-                    Gl.glBindTexture(Gl.GL_TEXTURE_2D, material.id_texture[0]);
+                    Gl.glBindTexture(Gl.GL_TEXTURE_2D, material.texture.id[0]);
                     Gl.glBegin(Gl.GL_TRIANGLES);
                     for (int i = 0; i < material.indices.Count; i++)
                     {
@@ -155,7 +168,23 @@ namespace MeshReducer
                     }
                     Gl.glEnd();
 
+                }*/
+
+                // SMD
+                foreach (SMDLoader.SMDLoader.Material material in smd.materials)
+                {
+                    Gl.glBindTexture(Gl.GL_TEXTURE_2D, material.texture.id[0]);
+                    Gl.glBegin(Gl.GL_TRIANGLES);
+                    foreach (SMDLoader.SMDLoader.Vertex vertex in material.vertices)
+                    {
+                        vec3 v = vertex.vertex;
+                        vec2 t = vertex.textcoords;
+                        Gl.glTexCoord2f(t.x, t.y);
+                        Gl.glVertex3f(v.x, v.y, v.z);
+                    }
+                    Gl.glEnd();
                 }
+
                 Gl.glPopMatrix();
             }
 
@@ -258,7 +287,7 @@ namespace MeshReducer
             {
                 foreach (OBJLoader.OBJLoader.Material material in obj.materials)
                 {
-                    Gl.glDeleteTextures(1, material.id_texture);
+                    material.texture.Release();
                 }
 
                 obj.Release();
@@ -319,33 +348,10 @@ namespace MeshReducer
                     image_filename = directory + @"\" + material.texture_filename;
                 }
 
-                Bitmap textureImage = null;
-                try
-                {
-                    textureImage = new Bitmap(image_filename);
-                }
-                catch
+                if (!material.texture.Load(image_filename))
                 {
                     return;
                 }
-
-                textureImage.RotateFlip(RotateFlipType.RotateNoneFlipY);
-                Rectangle rectangle = new Rectangle(0, 0, textureImage.Width, textureImage.Height);
-                BitmapData bitmapData = textureImage.LockBits(rectangle, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-
-                Gl.glGenTextures(1, material.id_texture);
-                Gl.glBindTexture(Gl.GL_TEXTURE_2D, material.id_texture[0]);
-
-                float[] maxAnisotropy = new float[1];
-                Gl.glGetFloatv(Gl.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy);
-                Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy[0]);
-
-                Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_LINEAR);
-                Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_LINEAR_MIPMAP_LINEAR);
-                Glu.gluBuild2DMipmaps(Gl.GL_TEXTURE_2D, Gl.GL_RGBA8, textureImage.Width, textureImage.Height, Gl.GL_BGRA, Gl.GL_UNSIGNED_BYTE, bitmapData.Scan0);
-
-                textureImage.UnlockBits(bitmapData);
-                textureImage.Dispose();
             }
 
             progressBar_load_obj.Value = progressBar_load_obj.Maximum;
@@ -358,8 +364,8 @@ namespace MeshReducer
             trackBar_rotate_z.Value = 0;
 
             // set up camera
-            vec3 center = new vec3((obj.min + obj.max) / 2.0f);
-            float radius = glm_length(center, obj.max);
+            center = new vec3((obj.min + obj.max) / 2.0f);
+            radius = glm_length(center, obj.max);
             camera.pos = center + (new vec3(0, 0, 1) * radius * 2.0f);
             camera.dir = glm.normalize(center - camera.pos);
             camera.SetVelocity(radius / 5.0f);
@@ -492,6 +498,75 @@ namespace MeshReducer
             key_pressed_left = false;
 
             mouse_pressed_right_button = false;
+        }
+
+        private void button3_Click_1(object sender, EventArgs e)
+        {
+            is_loaded = false;
+
+            if (smd != null)
+            {
+                foreach (SMDLoader.SMDLoader.Material material in smd.materials)
+                {
+                    material.texture.Release();
+                }
+
+                smd.Release();
+                smd = null;
+                System.GC.Collect();
+            }
+
+            smd = new SMDLoader.SMDLoader();
+            if (smd == null)
+            {
+                return;
+            }
+
+            OpenFileDialog theDialog = new OpenFileDialog();
+            theDialog.Title = "Open SMD Reference File";
+            theDialog.Filter = "SMD files|*.smd";
+            theDialog.InitialDirectory = @"./";
+            if (theDialog.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            string fullpath = theDialog.FileName;
+            string filename = theDialog.SafeFileName;
+            string directory = Path.GetDirectoryName(fullpath);
+            string extension = Path.GetExtension(fullpath).ToLower();
+
+            if (extension != ".smd")
+            {
+                return;
+            }
+
+            if (!smd.LoadReference(directory, filename))
+            {
+                return;
+            }
+
+            foreach (SMDLoader.SMDLoader.Material material in smd.materials)
+            {
+                string image_filename = directory + @"\" + material.texture_name;
+                if (!material.texture.Load(image_filename))
+                {
+                    return;
+                }
+            }
+
+            trackBar_rotate_x.Value = 0;
+            trackBar_rotate_y.Value = 0;
+            trackBar_rotate_z.Value = 0;
+
+            // set up camera
+            center = new vec3((smd.min + smd.max) / 2.0f);
+            radius = glm_length(center, smd.max);
+            camera.pos = center + (new vec3(0, 0, 1) * radius * 2.0f);
+            camera.dir = glm.normalize(center - camera.pos);
+            camera.SetVelocity(radius / 5.0f);
+
+            is_loaded = true;
         }
     }
 }

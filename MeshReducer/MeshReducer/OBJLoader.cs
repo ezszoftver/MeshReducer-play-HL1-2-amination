@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Tao.OpenGl;
 using GlmNet;
 
+using MeshReducer.Texture;
+
 namespace MeshReducer.OBJLoader
 {
     class OBJLoader
@@ -34,7 +36,7 @@ namespace MeshReducer.OBJLoader
         public class Material
         {
             public string texture_filename;
-            public int[] id_texture;
+            public Texture.Texture texture;
 
             public List<Vertex> indices;
 
@@ -42,7 +44,7 @@ namespace MeshReducer.OBJLoader
             {
                 indices = new List<Vertex>();
                 this.texture_filename = texture_filename;
-                id_texture = new int[1];
+                texture = new Texture.Texture();
             }
             
             public void Release()
@@ -65,16 +67,16 @@ namespace MeshReducer.OBJLoader
             materials = new List<Material>();
         }
 
-        public Boolean Load(string path, string filename)
+        public Boolean Load(string directory, string filename)
         {
-            string[] lines = File.ReadAllText(path + @"\" + filename).Split(new char[] {'\r', '\n'});
+            string[] lines = File.ReadAllText(directory + @"\" + filename).Split(new char[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
 
             min = new vec3(+1000000.0f, +1000000.0f, +1000000.0f);
             max = new vec3(-1000000.0f, -1000000.0f, -1000000.0f);
             UInt32 material_id = 0;
 
             foreach (string line in lines) {
-                string[] words = line.Split(' ');
+                string[] words = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
                 switch (words[0]) {
                     case ("#"): {
@@ -101,14 +103,14 @@ namespace MeshReducer.OBJLoader
                             break;
                         }
                     case ("mtllib"): {
-                            string[] mtl_lines = File.ReadAllText(path + @"\" + words[1]).Split(new char[] {'\r', '\n'});
+                            string[] mtl_lines = File.ReadAllText(directory + @"\" + words[1]).Split(new char[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
 
                             string material = "";
                             string texture_name = "";
                             bool is_save = true;
 
                             foreach (string mtl_line in mtl_lines) {
-                                string[] mtl_words = mtl_line.Split(' ');
+                                string[] mtl_words = mtl_line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                             
                                 switch (mtl_words[0]) {
                                     case ("#"): {
