@@ -33,6 +33,7 @@ namespace MeshReducer
 
         private OBJLoader.OBJLoader obj;
         private SMDLoader.SMDLoader smd;
+        private float time;
         private bool is_loaded = false;
 
         vec3 center;
@@ -150,9 +151,9 @@ namespace MeshReducer
             if (is_loaded) {
                 Gl.glPushMatrix();
 
-                Gl.glRotatef(trackBar_rotate_z.Value, 0, 0, 1);
-                Gl.glRotatef(trackBar_rotate_y.Value, 0, 1, 0);
-                Gl.glRotatef(trackBar_rotate_x.Value, 1, 0, 0);
+                //Gl.glRotatef(trackBar_rotate_z.Value, 0, 0, 1);
+                //Gl.glRotatef(trackBar_rotate_y.Value, 0, 1, 0);
+                //Gl.glRotatef(trackBar_rotate_x.Value, 1, 0, 0);
 
                 // OBJ
                 /*foreach (OBJLoader.OBJLoader.Material material in obj.materials) {
@@ -170,14 +171,37 @@ namespace MeshReducer
 
                 }*/
 
-                // SMD
+                // SMD Reference
+                /*foreach (SMDLoader.SMDLoader.Material material in smd.materials)
+                {
+                    Gl.glBindTexture(Gl.GL_TEXTURE_2D, material.texture.id[0]);
+                    Gl.glBegin(Gl.GL_TRIANGLES);
+                    foreach (SMDLoader.SMDLoader.Vertex vertex in material.vertices)
+                    {
+                        mat4 T = smd.transform_inverse[vertex.matrices[0].matrix_id];
+                        vec4 v = T * new vec4(vertex.vertex, 1);
+                        vec2 t = vertex.textcoords;
+                        Gl.glTexCoord2f(t.x, t.y);
+                        Gl.glVertex3f(v.x, v.y, v.z);
+                    }
+                    Gl.glEnd();
+                }*/
+
+                // SMD Anim
+                time += dt;
+                if (time >= smd.GetFullTime()) time -= smd.GetFullTime();
+                smd.SetTime(time);
+
                 foreach (SMDLoader.SMDLoader.Material material in smd.materials)
                 {
                     Gl.glBindTexture(Gl.GL_TEXTURE_2D, material.texture.id[0]);
                     Gl.glBegin(Gl.GL_TRIANGLES);
                     foreach (SMDLoader.SMDLoader.Vertex vertex in material.vertices)
                     {
-                        vec3 v = vertex.vertex;
+                        mat4 T = glm.translate(mat4.identity(), new vec3(1,0,0)) * glm.rotate(1, new vec3(0, 0, 1)) * glm.rotate(2, new vec3(0, 1, 0)) * glm.rotate(3, new vec3(1, 0, 0));
+
+                        //vec4 v = (/*smd.transform[vertex.matrices[0].matrix_id] **/ (smd.transform_inverse[vertex.matrices[0].matrix_id] * new vec4(vertex.vertex, 1)));
+                        vec4 v = (T * (glm.inverse(T) * new vec4(vertex.vertex, 1)));
                         vec2 t = vertex.textcoords;
                         Gl.glTexCoord2f(t.x, t.y);
                         Gl.glVertex3f(v.x, v.y, v.z);
@@ -564,9 +588,57 @@ namespace MeshReducer
             radius = glm_length(center, smd.max);
             camera.pos = center + (new vec3(0, 0, 1) * radius * 2.0f);
             camera.dir = glm.normalize(center - camera.pos);
-            camera.SetVelocity(radius / 5.0f);
+            camera.SetVelocity(radius / 1.0f);
 
-            is_loaded = true;
+            //is_loaded = true;
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            if (smd == null)
+            {
+                return;
+            }
+
+            OpenFileDialog theDialog = new OpenFileDialog();
+            theDialog.Title = "Open SMD Animation File";
+            theDialog.Filter = "SMD files|*.smd";
+            theDialog.InitialDirectory = @"./";
+            if (theDialog.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            string fullpath = theDialog.FileName;
+            string filename = theDialog.SafeFileName;
+            string directory = Path.GetDirectoryName(fullpath);
+            string extension = Path.GetExtension(fullpath).ToLower();
+
+            if (extension != ".smd")
+            {
+                return;
+            }
+
+            string anim_name = filename;
+            if (!smd.AddAnimation(directory, filename, anim_name, 10.0f))
+            {
+                return;
+            }
+
+            comboBox_animations.Items.Add(anim_name);
+        }
+
+        private void comboBox_animations_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string anim_name = (string)comboBox_animations.SelectedItem;
+
+            if (smd != null)
+            {
+                smd.SetAnimation(anim_name);
+                time = 0.0f;
+
+                is_loaded = true;
+            }
         }
     }
 }

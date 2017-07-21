@@ -11,10 +11,11 @@ using MeshReducer.Texture;
 
 namespace MeshReducer.SMDLoader
 {
+
     class SMDLoader
     {
         // egy csomópont
-        class Node
+        public class Node
         {
 		public Node(string name, int parent_id)
             {
@@ -22,35 +23,27 @@ namespace MeshReducer.SMDLoader
                 this.name = name;
             }
 
-            string name;
-            int parent_id;
+            public string name;
+            public int parent_id;
         };
         // csomópontok
         List<Node> nodes;
 
         // egy csont
-        class Bone
+        public class Bone
         {
 		    public Bone(vec3 translate, vec3 rotate)
             {
                 this.translate = translate;
                 this.rotate = rotate;
-
-                this.is_updated = false;
-                this.transform = new mat4(1.0f);
-                this.transform_inverse = new mat4(1.0f);
             }
 
-            vec3 translate;
-            vec3 rotate;
-            // matrix-ok
-            bool is_updated;
-            mat4 transform;
-            mat4 transform_inverse;
+            public vec3 translate;
+            public vec3 rotate;
         };
 
         // egy csontváz
-        class Skeleton
+        public class Skeleton
         {
             public Skeleton()
             {
@@ -61,11 +54,11 @@ namespace MeshReducer.SMDLoader
         };
 
         // egy animáció
-        class Animation
+        public class Animation
         {
     		public string name;
-            float fps; // 1 sec alatt, hány skeleton játszódik le
-            List<Skeleton> times;
+            public float fps; // 1 sec alatt, hány skeleton játszódik le
+            public List<Skeleton> times;
 
             public Animation()
             {
@@ -77,7 +70,10 @@ namespace MeshReducer.SMDLoader
         // animációk
         List<Animation> animations;
 
-        Skeleton reference_skeleton;
+        public Skeleton reference_skeleton;
+        public mat4[] transform_inverse;
+        Skeleton current_skeleton;
+        public mat4[] transform;
 
         public class MatrixIdAndWeight
         {
@@ -135,6 +131,7 @@ namespace MeshReducer.SMDLoader
             materials = new List<Material>();
             material_to_id = new Dictionary<string, int>();
             reference_skeleton = new Skeleton();
+            current_skeleton = new Skeleton();
             min = new vec3(0, 0, 0);
             max = new vec3(0, 0, 0);
         }
@@ -214,7 +211,7 @@ namespace MeshReducer.SMDLoader
                         Vertex vertex = new Vertex(v, t);
 
                         // one matrix
-                        vertex.matrices.Add(new MatrixIdAndWeight(matrix_id, weight));
+                        vertex.AddMatrix(matrix_id, weight);
 
                         // add
                         materials[mat_id].vertices.Add(vertex);
@@ -238,7 +235,7 @@ namespace MeshReducer.SMDLoader
                             float weight = float.Parse(words[id++]);
 
                             // add
-                            vertex.matrices.Add(new MatrixIdAndWeight(matrix_id, weight));
+                            vertex.AddMatrix(matrix_id, weight);
                         }
 
                         // add
@@ -277,7 +274,181 @@ namespace MeshReducer.SMDLoader
                 }
             }
 
+            // init current skeleton
+            for (int i = 0; i < reference_skeleton.bones.Count(); i++)
+            {
+                current_skeleton.bones.Add(new Bone(new vec3(0, 0, 0), new vec3(0, 0, 0)));
+            }
+
+            // calc matrices
+            transform = new mat4[reference_skeleton.bones.Count()];
+            transform_inverse = new mat4[reference_skeleton.bones.Count()];
+            for (int i = 0; i < reference_skeleton.bones.Count(); i++)
+            {
+                transform_inverse[i] = glm.inverse(GetReferenceMatrix(i));
+            }
+
             return true;
+        }
+
+        public bool AddAnimation(string directory, string filename, string anim_name, float fps)
+        {
+            string[] lines = File.ReadAllText(directory + @"\" + filename).Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+            Animation animation = new Animation();
+            animation.name = anim_name;
+            animation.fps = fps;
+
+            Skeleton skeleton = null;
+
+            bool is_time_or_end = false;
+            bool is_time = false;
+
+            foreach (string line in lines)
+            {
+                string[] words = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (words[0] == "skeleton")
+                {
+                    is_time_or_end = true;
+                    is_time = false;
+                    continue;
+                }
+
+                if (is_time)
+                {
+                    if (words[0] == "time" || words[0] == "end")
+                    {
+                        is_time = false;
+                        is_time_or_end = true;
+                    }
+                }
+                
+                if (is_time_or_end) {
+                    if (skeleton != null)
+                    {
+                        animation.times.Add(skeleton);
+                    }
+                    
+                    if (words[0] == "time")
+                    {
+                        skeleton = new Skeleton();
+
+                        is_time_or_end = false;
+                        is_time = true;
+
+                        continue;
+                    }
+
+                    if (words[0] == "end")
+                    {
+                        is_time_or_end = false;
+                        animations.Add(animation);
+                        break;
+                    }
+                }
+
+                if (is_time)
+                {
+                    skeleton.bones.Add(new Bone(new vec3(float.Parse(words[1]), float.Parse(words[2]), float.Parse(words[3])), new vec3(float.Parse(words[4]), float.Parse(words[5]), float.Parse(words[6]))));
+                }
+            }
+
+            return true;
+        }
+
+        Animation curr_animation;
+        public void SetAnimation(string anim_name)
+        {
+            curr_animation = null;
+
+            foreach (Animation animation in animations)
+            {
+                if (animation.name == anim_name)
+                {
+                    curr_animation = animation;
+                    return;
+                }
+            }
+        }
+
+        public float GetFullTime()
+        {
+            return ((float)(curr_animation.times.Count() - 1) / curr_animation.fps);
+        }
+
+        public void SetTime(float time)
+        {
+            // Set Skeleton
+            int start = (int)Math.Floor((double)(time * curr_animation.fps));
+            int end = (int)Math.Ceiling((double)(time * curr_animation.fps));
+
+            if (start == end)
+            {
+                CalcNewSkeleton(curr_animation.times[start], curr_animation.times[end], 0.0f);
+            }
+            else
+            {
+                float skeletonT1 = (float)start / curr_animation.fps;
+                float skeletonT2 = (float)end / curr_animation.fps;
+                float diff1 = skeletonT2 - skeletonT1;
+                float diff2 = time - skeletonT1;
+                float dt = diff2 / diff1;
+                CalcNewSkeleton(curr_animation.times[start], curr_animation.times[end], dt);
+            }
+
+            // Update Matrices
+            UpdateMatrices();
+        }
+
+        void CalcNewSkeleton(Skeleton start, Skeleton end, float dt)
+        {
+            for (int i = 0; i < (int)current_skeleton.bones.Count(); i++)
+            {
+                // translate
+                current_skeleton.bones[i].translate = (start.bones[i].translate * (1.0f - dt)) + (end.bones[i].translate * dt);
+                // rotate
+                current_skeleton.bones[i].rotate = (start.bones[i].rotate * (1.0f - dt)) + (end.bones[i].rotate * dt);
+            }
+        }
+
+        void UpdateMatrices()
+        {
+            // mátrixok kiszámítása rekurzívan
+            for (int i = 0; i < current_skeleton.bones.Count(); i++)
+            {
+                transform[i] = GetMatrix(i);
+            }
+        }
+
+        public mat4 GetReferenceMatrix(int id)
+        {
+            // ha a gyökérnél vagyunk, akkor egységmátrix
+            if (id == -1) return mat4.identity();
+            
+            // változások a szülõhöz képest
+            vec3 tr = reference_skeleton.bones[id].translate; // eltolás
+            vec3 rot = reference_skeleton.bones[id].rotate; // forgatás
+            // lokális és a szülõ mátrixok egybe gyúrása
+            mat4 local = glm.translate(mat4.identity(), tr) * glm.rotate(rot.z, new vec3(0, 0, 1)) * glm.rotate(rot.y, new vec3(0, 1, 0)) * glm.rotate(rot.x, new vec3(1, 0, 0));
+            mat4 parent_global = GetReferenceMatrix(nodes[id].parent_id);
+
+            return (parent_global * local);
+        }
+
+        public mat4 GetMatrix(int id)
+        {
+            // ha a gyökérnél vagyunk, akkor egységmátrix
+            if (id == -1) return mat4.identity();
+
+            // változások a szülõhöz képest
+            vec3 tr = current_skeleton.bones[id].translate; // eltolás
+            vec3 rot = current_skeleton.bones[id].rotate; // forgatás
+            // lokális és a szülõ mátrixok egybe gyúrása
+            mat4 local = glm.translate(mat4.identity(), tr) * glm.rotate(rot.z, new vec3(0, 0, 1)) * glm.rotate(rot.y, new vec3(0, 1, 0)) * glm.rotate(rot.x, new vec3(1, 0, 0));
+            mat4 parent_global = GetMatrix(nodes[id].parent_id);
+            
+            return (parent_global * local);
         }
 
         public void Release()

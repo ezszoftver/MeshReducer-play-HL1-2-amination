@@ -42,6 +42,7 @@
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.tabSMD = new System.Windows.Forms.TabPage();
+            this.button3 = new System.Windows.Forms.Button();
             this.tabOptions = new System.Windows.Forms.TabPage();
             this.groupBox_options_reduce = new System.Windows.Forms.GroupBox();
             this.button_calc = new System.Windows.Forms.Button();
@@ -55,7 +56,8 @@
             this.label3 = new System.Windows.Forms.Label();
             this.trackBar_rotate_x = new System.Windows.Forms.TrackBar();
             this.label2 = new System.Windows.Forms.Label();
-            this.button3 = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
+            this.comboBox_animations = new System.Windows.Forms.ComboBox();
             this.menuStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabOBJ.SuspendLayout();
@@ -181,6 +183,8 @@
             // 
             // tabSMD
             // 
+            this.tabSMD.Controls.Add(this.comboBox_animations);
+            this.tabSMD.Controls.Add(this.button4);
             this.tabSMD.Controls.Add(this.button3);
             this.tabSMD.Location = new System.Drawing.Point(4, 22);
             this.tabSMD.Name = "tabSMD";
@@ -189,6 +193,16 @@
             this.tabSMD.TabIndex = 1;
             this.tabSMD.Text = "SMD File";
             this.tabSMD.UseVisualStyleBackColor = true;
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(6, 6);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(105, 23);
+            this.button3.TabIndex = 0;
+            this.button3.Text = "Load Reference";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click_1);
             // 
             // tabOptions
             // 
@@ -319,15 +333,25 @@
             this.label2.TabIndex = 0;
             this.label2.Text = "X Axis";
             // 
-            // button3
+            // button4
             // 
-            this.button3.Location = new System.Drawing.Point(6, 6);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(105, 23);
-            this.button3.TabIndex = 0;
-            this.button3.Text = "Load Reference";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click_1);
+            this.button4.Location = new System.Drawing.Point(6, 35);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(105, 23);
+            this.button4.TabIndex = 1;
+            this.button4.Text = "Add Animation";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
+            // comboBox_animations
+            // 
+            this.comboBox_animations.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox_animations.FormattingEnabled = true;
+            this.comboBox_animations.Location = new System.Drawing.Point(117, 35);
+            this.comboBox_animations.Name = "comboBox_animations";
+            this.comboBox_animations.Size = new System.Drawing.Size(155, 21);
+            this.comboBox_animations.TabIndex = 2;
+            this.comboBox_animations.SelectedIndexChanged += new System.EventHandler(this.comboBox_animations_SelectedIndexChanged);
             // 
             // MainWindow
             // 
@@ -398,6 +422,8 @@
         private System.Windows.Forms.Button button_calc;
         private System.Windows.Forms.TrackBar trackBar_reduce_percent;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.ComboBox comboBox_animations;
+        private System.Windows.Forms.Button button4;
     }
 }
 
