@@ -10,11 +10,13 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 
+using System.Numerics;
+
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Tao.OpenGl;
 using Tao.Platform.Windows;
-using GlmNet;
+
 
 using MeshReducer.Camera;
 using MeshReducer.OBJLoader;
@@ -36,7 +38,7 @@ namespace MeshReducer
         private float time;
         private bool is_loaded = false;
 
-        vec3 center;
+        Vector3 center;
         float radius;
 
         public MainWindow()
@@ -47,7 +49,7 @@ namespace MeshReducer
 
             obj = null;
             smd = null;
-            center = new vec3(0,0,0);
+            center = new Vector3(0,0,0);
             radius = 1.0f;
             camera = new Camera.Camera();
         }
@@ -124,9 +126,9 @@ namespace MeshReducer
             }
             camera.Update();
 
-            vec2 pos = new vec2(0, tabControl1.Height);
-            vec2 size = new vec2(ClientSize.Width, ClientSize.Height - menuStrip1.Height - tabControl1.Height);
-            Gl.glViewport((int)pos.x, (int)pos.y, (int)size.x, (int)size.y);
+            Vector2 pos = new Vector2(0, tabControl1.Height);
+            Vector2 size = new Vector2(ClientSize.Width, ClientSize.Height - menuStrip1.Height - tabControl1.Height);
+            Gl.glViewport((int)pos.X, (int)pos.Y, (int)size.X, (int)size.Y);
 
             Gl.glClearColor(0.5f, 0.5f, 1.0f, 0.0f);
             Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
@@ -141,19 +143,19 @@ namespace MeshReducer
 
             Gl.glMatrixMode(Gl.GL_PROJECTION);
             Gl.glLoadIdentity();
-            Glu.gluPerspective(45, size.x / size.y, radius / 1000.0f, radius * 10.0f);
+            Glu.gluPerspective(45, size.X / size.Y, radius / 1000.0f, radius * 10.0f);
 
             Gl.glMatrixMode(Gl.GL_MODELVIEW);
             Gl.glLoadIdentity();
-            vec3 at = camera.pos + camera.dir;
-            Glu.gluLookAt(camera.pos.x, camera.pos.y, camera.pos.z, at.x, at.y, at.z, camera.up.x, camera.up.y, camera.up.z);
+            Vector3 at = camera.pos + camera.dir;
+            Glu.gluLookAt(camera.pos.X, camera.pos.Y, camera.pos.Z, at.X, at.Y, at.Z, camera.up.X, camera.up.Y, camera.up.Z);
 
             if (is_loaded) {
                 Gl.glPushMatrix();
 
-                //Gl.glRotatef(trackBar_rotate_z.Value, 0, 0, 1);
-                //Gl.glRotatef(trackBar_rotate_y.Value, 0, 1, 0);
-                //Gl.glRotatef(trackBar_rotate_x.Value, 1, 0, 0);
+                Gl.glRotatef(trackBar_rotate_z.Value, 0, 0, 1);
+                Gl.glRotatef(trackBar_rotate_y.Value, 0, 1, 0);
+                Gl.glRotatef(trackBar_rotate_x.Value, 1, 0, 0);
 
                 // OBJ
                 /*foreach (OBJLoader.OBJLoader.Material material in obj.materials) {
@@ -162,10 +164,10 @@ namespace MeshReducer
                     Gl.glBegin(Gl.GL_TRIANGLES);
                     for (int i = 0; i < material.indices.Count; i++)
                     {
-                        vec3 v = obj.vertices[ material.indices[i].id_vertex];
-                        vec2 t = obj.text_coords[material.indices[i].id_textcoord];
-                        Gl.glTexCoord2f(t.x, t.y);
-                        Gl.glVertex3f(v.x, v.y, v.z);
+                        Vector3 v = obj.vertices[ material.indices[i].id_vertex];
+                        Vector2 t = obj.text_coords[material.indices[i].id_textcoord];
+                        Gl.glTexCoord2f(t.X, t.Y);
+                        Gl.glVertex3f(v.X, v.Y, v.Z);
                     }
                     Gl.glEnd();
 
@@ -178,11 +180,10 @@ namespace MeshReducer
                     Gl.glBegin(Gl.GL_TRIANGLES);
                     foreach (SMDLoader.SMDLoader.Vertex vertex in material.vertices)
                     {
-                        mat4 T = smd.transform_inverse[vertex.matrices[0].matrix_id];
-                        vec4 v = T * new vec4(vertex.vertex, 1);
-                        vec2 t = vertex.textcoords;
-                        Gl.glTexCoord2f(t.x, t.y);
-                        Gl.glVertex3f(v.x, v.y, v.z);
+                        Vector3 v = vertex.vertex;
+                        Vector2 t = vertex.textcoords;
+                        Gl.glTexCoord2f(t.X, t.Y);
+                        Gl.glVertex3f(v.X, v.Y, v.Z);
                     }
                     Gl.glEnd();
                 }*/
@@ -198,13 +199,10 @@ namespace MeshReducer
                     Gl.glBegin(Gl.GL_TRIANGLES);
                     foreach (SMDLoader.SMDLoader.Vertex vertex in material.vertices)
                     {
-                        mat4 T = glm.translate(mat4.identity(), new vec3(1,0,0)) * glm.rotate(1, new vec3(0, 0, 1)) * glm.rotate(2, new vec3(0, 1, 0)) * glm.rotate(3, new vec3(1, 0, 0));
-
-                        //vec4 v = (/*smd.transform[vertex.matrices[0].matrix_id] **/ (smd.transform_inverse[vertex.matrices[0].matrix_id] * new vec4(vertex.vertex, 1)));
-                        vec4 v = (T * (glm.inverse(T) * new vec4(vertex.vertex, 1)));
-                        vec2 t = vertex.textcoords;
-                        Gl.glTexCoord2f(t.x, t.y);
-                        Gl.glVertex3f(v.x, v.y, v.z);
+                        Vector4 v = Vector4.Transform(new Vector4(vertex.vertex, 1), Matrix4x4.Multiply(smd.transform_inverse[vertex.matrices[0].matrix_id], smd.transform[vertex.matrices[0].matrix_id]));
+                        Vector2 t = vertex.textcoords;
+                        Gl.glTexCoord2f(t.X, t.Y);
+                        Gl.glVertex3f(v.X, v.Y, v.Z);
                     }
                     Gl.glEnd();
                 }
@@ -388,20 +386,14 @@ namespace MeshReducer
             trackBar_rotate_z.Value = 0;
 
             // set up camera
-            center = new vec3((obj.min + obj.max) / 2.0f);
-            radius = glm_length(center, obj.max);
-            camera.pos = center + (new vec3(0, 0, 1) * radius * 2.0f);
-            camera.dir = glm.normalize(center - camera.pos);
+            center = Vector3.Divide(obj.min + obj.max, 2.0f);
+
+            radius = Vector3.Distance(center, obj.max);
+            camera.pos = center + (new Vector3(0, 0, 1) * radius * 2.0f);
+            camera.dir = Vector3.Normalize(center - camera.pos);
             camera.SetVelocity(radius / 5.0f);
 
-            is_loaded = true;
-        }
-
-        float glm_length(vec3 a, vec3 b)
-        {
-            vec3 v = b - a;
-            float length = (float)Math.Sqrt((float)(v.x*v.x + v.y*v.y + v.z*v.z));
-            return length;
+            //is_loaded = true;
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -584,10 +576,10 @@ namespace MeshReducer
             trackBar_rotate_z.Value = 0;
 
             // set up camera
-            center = new vec3((smd.min + smd.max) / 2.0f);
-            radius = glm_length(center, smd.max);
-            camera.pos = center + (new vec3(0, 0, 1) * radius * 2.0f);
-            camera.dir = glm.normalize(center - camera.pos);
+            center = Vector3.Divide(smd.min + smd.max, 2.0f);
+            radius = Vector3.Distance(center, smd.max);
+            camera.pos = center + (new Vector3(0, 0, 1) * radius * 2.0f);
+            camera.dir = Vector3.Normalize(center - camera.pos);
             camera.SetVelocity(radius / 1.0f);
 
             //is_loaded = true;
@@ -620,7 +612,7 @@ namespace MeshReducer
             }
 
             string anim_name = filename;
-            if (!smd.AddAnimation(directory, filename, anim_name, 10.0f))
+            if (!smd.AddAnimation(directory, filename, anim_name, 30.0f))
             {
                 return;
             }

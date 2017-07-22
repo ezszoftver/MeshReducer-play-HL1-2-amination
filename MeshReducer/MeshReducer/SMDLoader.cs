@@ -4,8 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+using System.Numerics;
+
 using Tao.OpenGl;
-using GlmNet;
 
 using MeshReducer.Texture;
 
@@ -32,14 +33,14 @@ namespace MeshReducer.SMDLoader
         // egy csont
         public class Bone
         {
-		    public Bone(vec3 translate, vec3 rotate)
+		    public Bone(Vector3 translate, Vector3 rotate)
             {
                 this.translate = translate;
                 this.rotate = rotate;
             }
 
-            public vec3 translate;
-            public vec3 rotate;
+            public Vector3 translate;
+            public Vector3 rotate;
         };
 
         // egy csontváz
@@ -71,9 +72,9 @@ namespace MeshReducer.SMDLoader
         List<Animation> animations;
 
         public Skeleton reference_skeleton;
-        public mat4[] transform_inverse;
+        public Matrix4x4[] transform_inverse;
         Skeleton current_skeleton;
-        public mat4[] transform;
+        public Matrix4x4[] transform;
 
         public class MatrixIdAndWeight
         {
@@ -89,7 +90,7 @@ namespace MeshReducer.SMDLoader
 
         public class Vertex
         {
-            public Vertex(vec3 vertex, vec2 textcoords)
+            public Vertex(Vector3 vertex, Vector2 textcoords)
             {
                 this.vertex = vertex;
                 this.textcoords = textcoords;
@@ -100,8 +101,8 @@ namespace MeshReducer.SMDLoader
                 matrices.Add(new MatrixIdAndWeight(matrix_id, weight));
             }
 
-            public vec3 vertex;
-            public vec2 textcoords;
+            public Vector3 vertex;
+            public Vector2 textcoords;
             public List<MatrixIdAndWeight> matrices = new List<MatrixIdAndWeight>();
         }
 
@@ -122,7 +123,7 @@ namespace MeshReducer.SMDLoader
         public List<Material> materials;
 
         private Dictionary<string, int> material_to_id;
-        public vec3 min, max;
+        public Vector3 min, max;
 
         public SMDLoader()
         {
@@ -132,8 +133,8 @@ namespace MeshReducer.SMDLoader
             material_to_id = new Dictionary<string, int>();
             reference_skeleton = new Skeleton();
             current_skeleton = new Skeleton();
-            min = new vec3(0, 0, 0);
-            max = new vec3(0, 0, 0);
+            min = new Vector3(0, 0, 0);
+            max = new Vector3(0, 0, 0);
         }
 
         public bool LoadReference(string directory, string filename)
@@ -175,7 +176,7 @@ namespace MeshReducer.SMDLoader
                 {
                     if (words[0] == "end") { is_skeleton = false; continue; }
 
-                    reference_skeleton.bones.Add(new Bone(new vec3(float.Parse(words[1]), float.Parse(words[2]), float.Parse(words[3])), new vec3(float.Parse(words[4]), float.Parse(words[5]), float.Parse(words[6]))));
+                    reference_skeleton.bones.Add(new Bone(new Vector3(float.Parse(words[1]), float.Parse(words[2]), float.Parse(words[3])), new Vector3(float.Parse(words[4]), float.Parse(words[5]), float.Parse(words[6]))));
                 }
 
                 if (is_triangles_texturename)
@@ -204,9 +205,9 @@ namespace MeshReducer.SMDLoader
                         int matrix_id = int.Parse(words[0]);
                         float weight = 1.0f;
                         // vertex
-                        vec3 v = new vec3(float.Parse(words[1]), float.Parse(words[2]), float.Parse(words[3]));
+                        Vector3 v = new Vector3(float.Parse(words[1]), float.Parse(words[2]), float.Parse(words[3]));
                         // textcoords
-                        vec2 t = new vec2(float.Parse(words[7]), float.Parse(words[8]));
+                        Vector2 t = new Vector2(float.Parse(words[7]), float.Parse(words[8]));
 
                         Vertex vertex = new Vertex(v, t);
 
@@ -219,9 +220,9 @@ namespace MeshReducer.SMDLoader
                     else // HL2
                     {
                         // vertex
-                        vec3 v = new vec3(float.Parse(words[1]), float.Parse(words[2]), float.Parse(words[3]));
+                        Vector3 v = new Vector3(float.Parse(words[1]), float.Parse(words[2]), float.Parse(words[3]));
                         // textcoords
-                        vec2 t = new vec2(float.Parse(words[7]), float.Parse(words[8]));
+                        Vector2 t = new Vector2(float.Parse(words[7]), float.Parse(words[8]));
 
                         Vertex vertex = new Vertex(v, t);
 
@@ -255,37 +256,37 @@ namespace MeshReducer.SMDLoader
             }
 
             // min-max
-            min = new vec3(+1000000.0f, +1000000.0f, +1000000.0f);
-            max = new vec3(-1000000.0f, -1000000.0f, -1000000.0f);
+            min = new Vector3(+1000000.0f, +1000000.0f, +1000000.0f);
+            max = new Vector3(-1000000.0f, -1000000.0f, -1000000.0f);
             foreach (Material material in materials)
             {
                 foreach (Vertex vertex in material.vertices)
                 {
-                    vec3 v = vertex.vertex;
+                    Vector3 v = vertex.vertex;
 
                     // min
-                    if (v.x < min.x) { min.x = v.x; }
-                    if (v.y < min.y) { min.y = v.y; }
-                    if (v.z < min.z) { min.z = v.z; }
+                    if (v.X < min.X) { min.X = v.X; }
+                    if (v.Y < min.Y) { min.Y = v.Y; }
+                    if (v.Z < min.Z) { min.Z = v.Z; }
                     // max
-                    if (max.x < v.x) { max.x = v.x; }
-                    if (max.y < v.y) { max.y = v.y; }
-                    if (max.z < v.z) { max.z = v.z; }
+                    if (max.X < v.X) { max.X = v.X; }
+                    if (max.Y < v.Y) { max.Y = v.Y; }
+                    if (max.Z < v.Z) { max.Z = v.Z; }
                 }
             }
 
             // init current skeleton
             for (int i = 0; i < reference_skeleton.bones.Count(); i++)
             {
-                current_skeleton.bones.Add(new Bone(new vec3(0, 0, 0), new vec3(0, 0, 0)));
+                current_skeleton.bones.Add(new Bone(new Vector3(0, 0, 0), new Vector3(0, 0, 0)));
             }
 
             // calc matrices
-            transform = new mat4[reference_skeleton.bones.Count()];
-            transform_inverse = new mat4[reference_skeleton.bones.Count()];
+            transform = new Matrix4x4[reference_skeleton.bones.Count()];
+            transform_inverse = new Matrix4x4[reference_skeleton.bones.Count()];
             for (int i = 0; i < reference_skeleton.bones.Count(); i++)
             {
-                transform_inverse[i] = glm.inverse(GetReferenceMatrix(i));
+                Matrix4x4.Invert(GetReferenceMatrix(i), out transform_inverse[i]);
             }
 
             return true;
@@ -350,7 +351,7 @@ namespace MeshReducer.SMDLoader
 
                 if (is_time)
                 {
-                    skeleton.bones.Add(new Bone(new vec3(float.Parse(words[1]), float.Parse(words[2]), float.Parse(words[3])), new vec3(float.Parse(words[4]), float.Parse(words[5]), float.Parse(words[6]))));
+                    skeleton.bones.Add(new Bone(new Vector3(float.Parse(words[1]), float.Parse(words[2]), float.Parse(words[3])), new Vector3(float.Parse(words[4]), float.Parse(words[5]), float.Parse(words[6]))));
                 }
             }
 
@@ -389,16 +390,24 @@ namespace MeshReducer.SMDLoader
             }
             else
             {
-                float skeletonT1 = (float)start / curr_animation.fps;
-                float skeletonT2 = (float)end / curr_animation.fps;
-                float diff1 = skeletonT2 - skeletonT1;
-                float diff2 = time - skeletonT1;
-                float dt = diff2 / diff1;
-                CalcNewSkeleton(curr_animation.times[start], curr_animation.times[end], dt);
+                double skeletonT1 = (double)start / curr_animation.fps;
+                double skeletonT2 = (double)end / curr_animation.fps;
+                double diff1 = skeletonT2 - skeletonT1;
+                double diff2 = time - skeletonT1;
+                double dt = diff2 / diff1;
+                CalcNewSkeleton(curr_animation.times[start], curr_animation.times[end], (float)dt);
             }
 
             // Update Matrices
             UpdateMatrices();
+        }
+
+        private float GetSignedRad(float alfa, float beta)
+        {
+            float difference = beta - alfa;
+            while (difference < -(float)Math.PI) difference += 2.0f * (float)Math.PI;
+            while (difference > (float)Math.PI) difference -= 2.0f * (float)Math.PI;
+            return difference;
         }
 
         void CalcNewSkeleton(Skeleton start, Skeleton end, float dt)
@@ -408,7 +417,15 @@ namespace MeshReducer.SMDLoader
                 // translate
                 current_skeleton.bones[i].translate = (start.bones[i].translate * (1.0f - dt)) + (end.bones[i].translate * dt);
                 // rotate
-                current_skeleton.bones[i].rotate = (start.bones[i].rotate * (1.0f - dt)) + (end.bones[i].rotate * dt);
+                // X
+                float rotate_x = GetSignedRad(start.bones[i].rotate.X, end.bones[i].rotate.X);
+                current_skeleton.bones[i].rotate.X = start.bones[i].rotate.X + (rotate_x * dt);
+                // Y
+                float rotate_y = GetSignedRad(start.bones[i].rotate.Y, end.bones[i].rotate.Y);
+                current_skeleton.bones[i].rotate.Y = start.bones[i].rotate.Y + (rotate_y * dt);
+                // Z
+                float rotate_z = GetSignedRad(start.bones[i].rotate.Z, end.bones[i].rotate.Z);
+                current_skeleton.bones[i].rotate.Z = start.bones[i].rotate.Z + (rotate_z * dt);
             }
         }
 
@@ -421,34 +438,34 @@ namespace MeshReducer.SMDLoader
             }
         }
 
-        public mat4 GetReferenceMatrix(int id)
+        public Matrix4x4 GetReferenceMatrix(int id)
         {
             // ha a gyökérnél vagyunk, akkor egységmátrix
-            if (id == -1) return mat4.identity();
-            
-            // változások a szülõhöz képest
-            vec3 tr = reference_skeleton.bones[id].translate; // eltolás
-            vec3 rot = reference_skeleton.bones[id].rotate; // forgatás
-            // lokális és a szülõ mátrixok egybe gyúrása
-            mat4 local = glm.translate(mat4.identity(), tr) * glm.rotate(rot.z, new vec3(0, 0, 1)) * glm.rotate(rot.y, new vec3(0, 1, 0)) * glm.rotate(rot.x, new vec3(1, 0, 0));
-            mat4 parent_global = GetReferenceMatrix(nodes[id].parent_id);
+            if (id == -1) return Matrix4x4.Identity;
 
-            return (parent_global * local);
+            // változások a szülõhöz képest
+            Vector3 tr = reference_skeleton.bones[id].translate; // eltolás
+            Vector3 rot = reference_skeleton.bones[id].rotate; // forgatás
+            // lokális és a szülõ mátrixok egybe gyúrása
+            Matrix4x4 local = Matrix4x4.Multiply(Matrix4x4.Multiply(Matrix4x4.Multiply(Matrix4x4.CreateRotationX(rot.X), Matrix4x4.CreateRotationY(rot.Y)), Matrix4x4.CreateRotationZ(rot.Z)), Matrix4x4.CreateTranslation(tr));
+            Matrix4x4 parent_global = GetReferenceMatrix(nodes[id].parent_id);
+
+            return Matrix4x4.Multiply(local, parent_global);
         }
 
-        public mat4 GetMatrix(int id)
+        public Matrix4x4 GetMatrix(int id)
         {
             // ha a gyökérnél vagyunk, akkor egységmátrix
-            if (id == -1) return mat4.identity();
+            if (id == -1) return Matrix4x4.Identity;
 
             // változások a szülõhöz képest
-            vec3 tr = current_skeleton.bones[id].translate; // eltolás
-            vec3 rot = current_skeleton.bones[id].rotate; // forgatás
+            Vector3 tr = current_skeleton.bones[id].translate; // eltolás
+            Vector3 rot = current_skeleton.bones[id].rotate; // forgatás
             // lokális és a szülõ mátrixok egybe gyúrása
-            mat4 local = glm.translate(mat4.identity(), tr) * glm.rotate(rot.z, new vec3(0, 0, 1)) * glm.rotate(rot.y, new vec3(0, 1, 0)) * glm.rotate(rot.x, new vec3(1, 0, 0));
-            mat4 parent_global = GetMatrix(nodes[id].parent_id);
-            
-            return (parent_global * local);
+            Matrix4x4 local = Matrix4x4.Multiply(Matrix4x4.Multiply(Matrix4x4.Multiply(Matrix4x4.CreateRotationX(rot.X), Matrix4x4.CreateRotationY(rot.Y)), Matrix4x4.CreateRotationZ(rot.Z)), Matrix4x4.CreateTranslation(tr));
+            Matrix4x4 parent_global = GetMatrix(nodes[id].parent_id);
+
+            return Matrix4x4.Multiply(local, parent_global);
         }
 
         public void Release()

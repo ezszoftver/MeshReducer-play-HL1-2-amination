@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.Numerics;
 using Tao.OpenGl;
-using GlmNet;
 
 using MeshReducer.Texture;
 
@@ -14,9 +14,9 @@ namespace MeshReducer.OBJLoader
 {
     class OBJLoader
     {
-        public vec3 min, max;
-        public List<vec3> vertices;
-        public List<vec2> text_coords;
+        public Vector3 min, max;
+        public List<Vector3> vertices;
+        public List<Vector2> text_coords;
 
         private Dictionary<string, UInt32> material_to_id;
         private Dictionary<string, string> material_to_texture;
@@ -58,10 +58,10 @@ namespace MeshReducer.OBJLoader
 
         public OBJLoader()
         {
-            min = new vec3(0, 0, 0);
-            max = new vec3(0, 0, 0);
-            vertices = new List<vec3>();
-            text_coords = new List<vec2>();
+            min = new Vector3(0, 0, 0);
+            max = new Vector3(0, 0, 0);
+            vertices = new List<Vector3>();
+            text_coords = new List<Vector2>();
             material_to_id = new Dictionary<string, UInt32>();
             material_to_texture = new Dictionary<string, string>();
             materials = new List<Material>();
@@ -71,8 +71,8 @@ namespace MeshReducer.OBJLoader
         {
             string[] lines = File.ReadAllText(directory + @"\" + filename).Split(new char[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
 
-            min = new vec3(+1000000.0f, +1000000.0f, +1000000.0f);
-            max = new vec3(-1000000.0f, -1000000.0f, -1000000.0f);
+            min = new Vector3(+1000000.0f, +1000000.0f, +1000000.0f);
+            max = new Vector3(-1000000.0f, -1000000.0f, -1000000.0f);
             UInt32 material_id = 0;
 
             foreach (string line in lines) {
@@ -83,22 +83,22 @@ namespace MeshReducer.OBJLoader
                             break;
                         }
                     case ("v"): {
-                            vec3 v = new vec3(float.Parse(words[1]), float.Parse(words[2]), float.Parse(words[3]));
+                            Vector3 v = new Vector3(float.Parse(words[1]), float.Parse(words[2]), float.Parse(words[3]));
                             vertices.Add(v);
 
                             // min
-                            if (v.x < min.x) { min.x = v.x; }
-                            if (v.y < min.y) { min.y = v.y; }
-                            if (v.z < min.z) { min.z = v.z; }
+                            if (v.X < min.X) { min.X = v.X; }
+                            if (v.Y < min.Y) { min.Y = v.Y; }
+                            if (v.Z < min.Z) { min.Z = v.Z; }
                             // max
-                            if (max.x < v.x) { max.x = v.x; }
-                            if (max.y < v.y) { max.y = v.y; }
-                            if (max.z < v.z) { max.z = v.z; }
+                            if (max.X < v.X) { max.X = v.X; }
+                            if (max.Y < v.Y) { max.Y = v.Y; }
+                            if (max.Z < v.Z) { max.Z = v.Z; }
 
                             break;
                         }
                     case ("vt"): {
-                            vec2 vt = new vec2(float.Parse(words[1]), float.Parse(words[2]));
+                            Vector2 vt = new Vector2(float.Parse(words[1]), float.Parse(words[2]));
                             text_coords.Add(vt);
                             break;
                         }
