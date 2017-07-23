@@ -72,7 +72,8 @@ namespace MeshReducer.SMDLoader
         List<Animation> animations;
 
         public Skeleton reference_skeleton;
-        public Matrix4x4[] transform_inverse;
+        public Matrix4x4[] transform_reference;
+        public Matrix4x4[] inverse_transform_reference;
         Skeleton current_skeleton;
         public Matrix4x4[] transform;
 
@@ -283,10 +284,12 @@ namespace MeshReducer.SMDLoader
 
             // calc matrices
             transform = new Matrix4x4[reference_skeleton.bones.Count()];
-            transform_inverse = new Matrix4x4[reference_skeleton.bones.Count()];
+            transform_reference = new Matrix4x4[reference_skeleton.bones.Count()];
+            inverse_transform_reference = new Matrix4x4[reference_skeleton.bones.Count()];
             for (int i = 0; i < reference_skeleton.bones.Count(); i++)
             {
-                Matrix4x4.Invert(GetReferenceMatrix(i), out transform_inverse[i]);
+                transform_reference[i] = GetReferenceMatrix(i);
+                Matrix4x4.Invert(GetReferenceMatrix(i), out inverse_transform_reference[i]);
             }
 
             return true;

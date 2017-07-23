@@ -199,7 +199,14 @@ namespace MeshReducer
                     Gl.glBegin(Gl.GL_TRIANGLES);
                     foreach (SMDLoader.SMDLoader.Vertex vertex in material.vertices)
                     {
-                        Vector4 v = Vector4.Transform(new Vector4(vertex.vertex, 1), Matrix4x4.Multiply(smd.transform_inverse[vertex.matrices[0].matrix_id], smd.transform[vertex.matrices[0].matrix_id]));
+                        // transforms
+                        Matrix4x4 transforms = Matrix4x4.Multiply(smd.inverse_transform_reference[vertex.matrices[0].matrix_id], smd.transform[vertex.matrices[0].matrix_id]) * vertex.matrices[0].weight;
+                        for(int i = 1; i < vertex.matrices.Count; i++)
+                        {
+                            transforms += Matrix4x4.Multiply(smd.inverse_transform_reference[vertex.matrices[i].matrix_id], smd.transform[vertex.matrices[i].matrix_id]) * vertex.matrices[i].weight;
+                        }
+
+                        Vector4 v = Vector4.Transform(new Vector4(vertex.vertex, 1), transforms);
                         Vector2 t = vertex.textcoords;
                         Gl.glTexCoord2f(t.X, t.Y);
                         Gl.glVertex3f(v.X, v.Y, v.Z);
