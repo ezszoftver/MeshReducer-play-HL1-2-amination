@@ -9,3 +9,13 @@ C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Debug\MeshReduc
 C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Debug\MeshReducer.csproj.GenerateResource.Cache
 C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Debug\MeshReducer.exe
 C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Debug\MeshReducer.pdb
+e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\bin\x64\Debug\MeshReducer.exe.config
+e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Debug\MeshReducer.exe
+e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Debug\MeshReducer.pdb
+e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\bin\x64\Debug\MeshReducer.exe
+e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\bin\x64\Debug\MeshReducer.pdb
+e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\bin\x64\Debug\Tao.OpenGl.dll
+e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\bin\x64\Debug\Tao.Platform.Windows.dll
+e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Debug\MeshReducer.MainWindow.resources
+e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Debug\MeshReducer.Properties.Resources.resources
+e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Debug\MeshReducer.csproj.GenerateResource.Cache

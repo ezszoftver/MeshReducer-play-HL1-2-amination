@@ -10,13 +10,14 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 
+using System.Globalization;
+using System.Threading;
 using System.Numerics;
 
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Tao.OpenGl;
 using Tao.Platform.Windows;
-
 
 using MeshReducer.Camera;
 using MeshReducer.OBJLoader;
@@ -46,6 +47,8 @@ namespace MeshReducer
             InitializeComponent();
 
             Application.AddMessageFilter(this);
+
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
             obj = null;
             smd = null;

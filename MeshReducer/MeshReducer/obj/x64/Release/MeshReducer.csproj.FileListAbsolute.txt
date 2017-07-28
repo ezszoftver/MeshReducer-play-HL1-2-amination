@@ -9,3 +9,14 @@ c:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Release\MeshRed
 c:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Release\MeshReducer.csproj.GenerateResource.Cache
 c:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Release\MeshReducer.exe
 c:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Release\MeshReducer.pdb
+e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\bin\x64\Release\MeshReducer.exe.config
+e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\bin\x64\Release\MeshReducer.exe
+e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\bin\x64\Release\MeshReducer.pdb
+e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\bin\x64\Release\Tao.OpenGl.dll
+e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\bin\x64\Release\Tao.Platform.Windows.dll
+e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Release\MeshReducer.csprojResolveAssemblyReference.cache
+e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Release\MeshReducer.MainWindow.resources
+e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Release\MeshReducer.Properties.Resources.resources
+e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Release\MeshReducer.csproj.GenerateResource.Cache
+e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Release\MeshReducer.exe
+e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Release\MeshReducer.pdb
