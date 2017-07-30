@@ -7,7 +7,7 @@ using System.Drawing.Imaging;
 
 using Tao.OpenGl;
 
-namespace MeshReducer.Texture
+namespace MeshReducer
 {
     class Texture
     {

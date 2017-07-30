@@ -42,6 +42,8 @@
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.tabSMD = new System.Windows.Forms.TabPage();
+            this.comboBox_animations = new System.Windows.Forms.ComboBox();
+            this.button4 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.tabOptions = new System.Windows.Forms.TabPage();
             this.groupBox_options_reduce = new System.Windows.Forms.GroupBox();
@@ -56,8 +58,12 @@
             this.label3 = new System.Windows.Forms.Label();
             this.trackBar_rotate_x = new System.Windows.Forms.TrackBar();
             this.label2 = new System.Windows.Forms.Label();
-            this.button4 = new System.Windows.Forms.Button();
-            this.comboBox_animations = new System.Windows.Forms.ComboBox();
+            this.trackBar_animspeed = new System.Windows.Forms.TrackBar();
+            this.label_smd_speed = new System.Windows.Forms.Label();
+            this.button_smd_save = new System.Windows.Forms.Button();
+            this.label_smd_save = new System.Windows.Forms.Label();
+            this.progressBar_smd_save = new System.Windows.Forms.ProgressBar();
+            this.label1 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabOBJ.SuspendLayout();
@@ -69,6 +75,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_rotate_z)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_rotate_y)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_rotate_x)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar_animspeed)).BeginInit();
             this.SuspendLayout();
             // 
             // timer1
@@ -106,7 +113,7 @@
             this.tabControl1.Controls.Add(this.tabOBJ);
             this.tabControl1.Controls.Add(this.tabSMD);
             this.tabControl1.Controls.Add(this.tabOptions);
-            this.tabControl1.Location = new System.Drawing.Point(12, 351);
+            this.tabControl1.Location = new System.Drawing.Point(12, 719);
             this.tabControl1.Multiline = true;
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
@@ -183,6 +190,11 @@
             // 
             // tabSMD
             // 
+            this.tabSMD.Controls.Add(this.label_smd_save);
+            this.tabSMD.Controls.Add(this.progressBar_smd_save);
+            this.tabSMD.Controls.Add(this.button_smd_save);
+            this.tabSMD.Controls.Add(this.label_smd_speed);
+            this.tabSMD.Controls.Add(this.trackBar_animspeed);
             this.tabSMD.Controls.Add(this.comboBox_animations);
             this.tabSMD.Controls.Add(this.button4);
             this.tabSMD.Controls.Add(this.button3);
@@ -193,6 +205,26 @@
             this.tabSMD.TabIndex = 1;
             this.tabSMD.Text = "SMD File";
             this.tabSMD.UseVisualStyleBackColor = true;
+            // 
+            // comboBox_animations
+            // 
+            this.comboBox_animations.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox_animations.FormattingEnabled = true;
+            this.comboBox_animations.Location = new System.Drawing.Point(117, 35);
+            this.comboBox_animations.Name = "comboBox_animations";
+            this.comboBox_animations.Size = new System.Drawing.Size(213, 21);
+            this.comboBox_animations.TabIndex = 2;
+            this.comboBox_animations.SelectedIndexChanged += new System.EventHandler(this.comboBox_animations_SelectedIndexChanged);
+            // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(6, 35);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(105, 23);
+            this.button4.TabIndex = 1;
+            this.button4.Text = "Add Animation";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // button3
             // 
@@ -206,6 +238,7 @@
             // 
             // tabOptions
             // 
+            this.tabOptions.Controls.Add(this.label1);
             this.tabOptions.Controls.Add(this.groupBox_options_reduce);
             this.tabOptions.Controls.Add(this.groupBox3);
             this.tabOptions.Location = new System.Drawing.Point(4, 22);
@@ -244,9 +277,9 @@
             this.label_reduce.BackColor = System.Drawing.Color.Transparent;
             this.label_reduce.Location = new System.Drawing.Point(236, 75);
             this.label_reduce.Name = "label_reduce";
-            this.label_reduce.Size = new System.Drawing.Size(100, 13);
+            this.label_reduce.Size = new System.Drawing.Size(24, 13);
             this.label_reduce.TabIndex = 3;
-            this.label_reduce.Text = "Vertices: 0 / 0 (0 %)";
+            this.label_reduce.Text = "0 %";
             // 
             // trackBar_reduce_percent
             // 
@@ -282,7 +315,8 @@
             // trackBar_rotate_z
             // 
             this.trackBar_rotate_z.Location = new System.Drawing.Point(108, 32);
-            this.trackBar_rotate_z.Maximum = 360;
+            this.trackBar_rotate_z.Maximum = 180;
+            this.trackBar_rotate_z.Minimum = -180;
             this.trackBar_rotate_z.Name = "trackBar_rotate_z";
             this.trackBar_rotate_z.Orientation = System.Windows.Forms.Orientation.Vertical;
             this.trackBar_rotate_z.Size = new System.Drawing.Size(45, 136);
@@ -300,7 +334,8 @@
             // trackBar_rotate_y
             // 
             this.trackBar_rotate_y.Location = new System.Drawing.Point(57, 32);
-            this.trackBar_rotate_y.Maximum = 360;
+            this.trackBar_rotate_y.Maximum = 180;
+            this.trackBar_rotate_y.Minimum = -180;
             this.trackBar_rotate_y.Name = "trackBar_rotate_y";
             this.trackBar_rotate_y.Orientation = System.Windows.Forms.Orientation.Vertical;
             this.trackBar_rotate_y.Size = new System.Drawing.Size(45, 136);
@@ -318,11 +353,13 @@
             // trackBar_rotate_x
             // 
             this.trackBar_rotate_x.Location = new System.Drawing.Point(6, 32);
-            this.trackBar_rotate_x.Maximum = 360;
+            this.trackBar_rotate_x.Maximum = 180;
+            this.trackBar_rotate_x.Minimum = -180;
             this.trackBar_rotate_x.Name = "trackBar_rotate_x";
             this.trackBar_rotate_x.Orientation = System.Windows.Forms.Orientation.Vertical;
             this.trackBar_rotate_x.Size = new System.Drawing.Size(45, 136);
             this.trackBar_rotate_x.TabIndex = 3;
+            this.trackBar_rotate_x.Scroll += new System.EventHandler(this.trackBar_rotate_x_Scroll);
             // 
             // label2
             // 
@@ -333,35 +370,71 @@
             this.label2.TabIndex = 0;
             this.label2.Text = "X Axis";
             // 
-            // button4
+            // trackBar_animspeed
             // 
-            this.button4.Location = new System.Drawing.Point(6, 35);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(105, 23);
-            this.button4.TabIndex = 1;
-            this.button4.Text = "Add Animation";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
+            this.trackBar_animspeed.Location = new System.Drawing.Point(117, 62);
+            this.trackBar_animspeed.Maximum = 100;
+            this.trackBar_animspeed.Name = "trackBar_animspeed";
+            this.trackBar_animspeed.Size = new System.Drawing.Size(213, 45);
+            this.trackBar_animspeed.TabIndex = 8;
+            this.trackBar_animspeed.Value = 30;
+            this.trackBar_animspeed.Scroll += new System.EventHandler(this.trackBar_animspeed_Scroll);
             // 
-            // comboBox_animations
+            // label_smd_speed
             // 
-            this.comboBox_animations.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox_animations.FormattingEnabled = true;
-            this.comboBox_animations.Location = new System.Drawing.Point(117, 35);
-            this.comboBox_animations.Name = "comboBox_animations";
-            this.comboBox_animations.Size = new System.Drawing.Size(155, 21);
-            this.comboBox_animations.TabIndex = 2;
-            this.comboBox_animations.SelectedIndexChanged += new System.EventHandler(this.comboBox_animations_SelectedIndexChanged);
+            this.label_smd_speed.AutoSize = true;
+            this.label_smd_speed.Location = new System.Drawing.Point(21, 78);
+            this.label_smd_speed.Name = "label_smd_speed";
+            this.label_smd_speed.Size = new System.Drawing.Size(41, 13);
+            this.label_smd_speed.TabIndex = 9;
+            this.label_smd_speed.Text = "Speed:";
+            // 
+            // button_smd_save
+            // 
+            this.button_smd_save.Location = new System.Drawing.Point(6, 125);
+            this.button_smd_save.Name = "button_smd_save";
+            this.button_smd_save.Size = new System.Drawing.Size(105, 23);
+            this.button_smd_save.TabIndex = 10;
+            this.button_smd_save.Text = "Save As";
+            this.button_smd_save.UseVisualStyleBackColor = true;
+            this.button_smd_save.Click += new System.EventHandler(this.button_smd_save_Click);
+            // 
+            // label_smd_save
+            // 
+            this.label_smd_save.AutoSize = true;
+            this.label_smd_save.Location = new System.Drawing.Point(412, 130);
+            this.label_smd_save.Name = "label_smd_save";
+            this.label_smd_save.Size = new System.Drawing.Size(24, 13);
+            this.label_smd_save.TabIndex = 12;
+            this.label_smd_save.Text = "0 %";
+            this.label_smd_save.Click += new System.EventHandler(this.label5_Click);
+            // 
+            // progressBar_smd_save
+            // 
+            this.progressBar_smd_save.Location = new System.Drawing.Point(117, 125);
+            this.progressBar_smd_save.Name = "progressBar_smd_save";
+            this.progressBar_smd_save.Size = new System.Drawing.Size(619, 23);
+            this.progressBar_smd_save.TabIndex = 11;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.BackColor = System.Drawing.Color.Transparent;
+            this.label1.Location = new System.Drawing.Point(163, 57);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(74, 13);
+            this.label1.TabIndex = 4;
+            this.label1.Text = "Vertices: 0 / 0";
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 561);
+            this.ClientSize = new System.Drawing.Size(784, 921);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
-            this.MinimumSize = new System.Drawing.Size(800, 600);
+            this.MinimumSize = new System.Drawing.Size(800, 960);
             this.Name = "MainWindow";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Mesh Reducer v1.0";
@@ -379,7 +452,9 @@
             this.tabOBJ.ResumeLayout(false);
             this.tabOBJ.PerformLayout();
             this.tabSMD.ResumeLayout(false);
+            this.tabSMD.PerformLayout();
             this.tabOptions.ResumeLayout(false);
+            this.tabOptions.PerformLayout();
             this.groupBox_options_reduce.ResumeLayout(false);
             this.groupBox_options_reduce.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_reduce_percent)).EndInit();
@@ -388,6 +463,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_rotate_z)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_rotate_y)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_rotate_x)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar_animspeed)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -424,6 +500,12 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.ComboBox comboBox_animations;
         private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button button_smd_save;
+        private System.Windows.Forms.Label label_smd_speed;
+        private System.Windows.Forms.TrackBar trackBar_animspeed;
+        private System.Windows.Forms.Label label_smd_save;
+        private System.Windows.Forms.ProgressBar progressBar_smd_save;
+        private System.Windows.Forms.Label label1;
     }
 }
 

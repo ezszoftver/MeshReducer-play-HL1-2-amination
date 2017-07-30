@@ -1,7 +1,6 @@
 C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\bin\x64\Debug\MeshReducer.exe.config
 C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\bin\x64\Debug\MeshReducer.exe
 C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\bin\x64\Debug\MeshReducer.pdb
-C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\bin\x64\Debug\GlmNet.dll
 C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\bin\x64\Debug\Tao.OpenGl.dll
 C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\bin\x64\Debug\Tao.Platform.Windows.dll
 C:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Debug\MeshReducer.MainWindow.resources

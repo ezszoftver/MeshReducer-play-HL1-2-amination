@@ -19,10 +19,6 @@ using System.Runtime.InteropServices;
 using Tao.OpenGl;
 using Tao.Platform.Windows;
 
-using MeshReducer.Camera;
-using MeshReducer.OBJLoader;
-using MeshReducer.SMDLoader;
-using MeshReducer.Texture;
 
 namespace MeshReducer
 {
@@ -32,12 +28,12 @@ namespace MeshReducer
         private static IntPtr hRC;
         DateTime elapsed_datetime;
         DateTime current_datetime;
-        Camera.Camera camera;
+        Camera camera;
 
-        private OBJLoader.OBJLoader obj;
-        private SMDLoader.SMDLoader smd;
+        private Mesh mesh;
+        private OBJLoader obj;
+        private SMDLoader smd;
         private float time;
-        private bool is_loaded = false;
 
         Vector3 center;
         float radius;
@@ -54,7 +50,7 @@ namespace MeshReducer
             smd = null;
             center = new Vector3(0,0,0);
             radius = 1.0f;
-            camera = new Camera.Camera();
+            camera = new Camera();
         }
         
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -65,12 +61,12 @@ namespace MeshReducer
         {
         }
 
-        private void ResizeComponents()
+        private void UpdateComponents()
         {
             // tab
             tabControl1.SetBounds(0, ClientSize.Height - tabControl1.Height, ClientSize.Width, tabControl1.Height);
 
-            // loadobjbox progressbar
+            // obj progressbar
             {
                 // load
                 progressBar_load_obj.Width = tabControl1.Width - 120;
@@ -80,7 +76,14 @@ namespace MeshReducer
                 label_save_obj.Location = new Point(progressBar_save_obj.Location.X + ((progressBar_save_obj.Width - label_save_obj.Width) / 2), progressBar_save_obj.Location.Y + ((progressBar_save_obj.Height - label_save_obj.Height) / 2));
             }
 
-            // groupbox options
+            // smd progressbar
+            {
+                // save
+                progressBar_smd_save.Width = tabControl1.Width - 130;
+                label_smd_save.Location = new Point(progressBar_smd_save.Location.X + ((progressBar_smd_save.Width - label_smd_save.Width) / 2), progressBar_smd_save.Location.Y + ((progressBar_smd_save.Height - label_smd_save.Height) / 2));
+            }
+
+            // options
             {
                 groupBox_options_reduce.Width = ClientSize.Width - groupBox3.Width - 20;
 
@@ -97,11 +100,13 @@ namespace MeshReducer
                     label_reduce.Location = new Point(progressBar_reduce.Location.X + ((progressBar_reduce.Width - label_reduce.Width) / 2), progressBar_reduce.Location.Y + ((progressBar_reduce.Height - label_reduce.Height) / 2));
                 }
             }
+
+            label_smd_speed.Text = "Speed (" + trackBar_animspeed.Value + " FPS):";
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            ResizeComponents();
+            UpdateComponents();
 
             // update
             elapsed_datetime = current_datetime;
@@ -136,14 +141,6 @@ namespace MeshReducer
             Gl.glClearColor(0.5f, 0.5f, 1.0f, 0.0f);
             Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
 
-//            Gl.glBegin(Gl.GL_TRIANGLES);
-//            {
-//                Gl.glColor3f(1, 0, 0); Gl.glVertex2f(+0, +1);
-//                Gl.glColor3f(0, 1, 0); Gl.glVertex2f(-1, -1);
-//                Gl.glColor3f(0, 0, 1); Gl.glVertex2f(+1, -1);
-//            }
-//            Gl.glEnd();
-
             Gl.glMatrixMode(Gl.GL_PROJECTION);
             Gl.glLoadIdentity();
             Glu.gluPerspective(45, size.X / size.Y, radius / 1000.0f, radius * 10.0f);
@@ -153,70 +150,27 @@ namespace MeshReducer
             Vector3 at = camera.pos + camera.dir;
             Glu.gluLookAt(camera.pos.X, camera.pos.Y, camera.pos.Z, at.X, at.Y, at.Z, camera.up.X, camera.up.Y, camera.up.Z);
 
-            if (is_loaded) {
+            if (mesh != null && mesh.is_loaded) {
                 Gl.glPushMatrix();
 
                 Gl.glRotatef(trackBar_rotate_z.Value, 0, 0, 1);
                 Gl.glRotatef(trackBar_rotate_y.Value, 0, 1, 0);
                 Gl.glRotatef(trackBar_rotate_x.Value, 1, 0, 0);
 
-                // OBJ
-                /*foreach (OBJLoader.OBJLoader.Material material in obj.materials) {
-
-                    Gl.glBindTexture(Gl.GL_TEXTURE_2D, material.texture.id[0]);
-                    Gl.glBegin(Gl.GL_TRIANGLES);
-                    for (int i = 0; i < material.indices.Count; i++)
-                    {
-                        Vector3 v = obj.vertices[ material.indices[i].id_vertex];
-                        Vector2 t = obj.text_coords[material.indices[i].id_textcoord];
-                        Gl.glTexCoord2f(t.X, t.Y);
-                        Gl.glVertex3f(v.X, v.Y, v.Z);
-                    }
-                    Gl.glEnd();
-
-                }*/
-
-                // SMD Reference
-                /*foreach (SMDLoader.SMDLoader.Material material in smd.materials)
+                if (smd != null && smd.IsAnimationSelected())
                 {
-                    Gl.glBindTexture(Gl.GL_TEXTURE_2D, material.texture.id[0]);
-                    Gl.glBegin(Gl.GL_TRIANGLES);
-                    foreach (SMDLoader.SMDLoader.Vertex vertex in material.vertices)
-                    {
-                        Vector3 v = vertex.vertex;
-                        Vector2 t = vertex.textcoords;
-                        Gl.glTexCoord2f(t.X, t.Y);
-                        Gl.glVertex3f(v.X, v.Y, v.Z);
-                    }
-                    Gl.glEnd();
-                }*/
+                    smd.SetFPS(trackBar_animspeed.Value);
+                    time += dt;
+                    if (time >= smd.GetFullTime()) time -= smd.GetFullTime();
+                    smd.SetTime(time, mesh);
 
-                // SMD Anim
-                time += dt;
-                if (time >= smd.GetFullTime()) time -= smd.GetFullTime();
-                smd.SetTime(time);
-
-                foreach (SMDLoader.SMDLoader.Material material in smd.materials)
-                {
-                    Gl.glBindTexture(Gl.GL_TEXTURE_2D, material.texture.id[0]);
-                    Gl.glBegin(Gl.GL_TRIANGLES);
-                    foreach (SMDLoader.SMDLoader.Vertex vertex in material.vertices)
-                    {
-                        // transforms
-                        Matrix4x4 transforms = Matrix4x4.Multiply(smd.inverse_transform_reference[vertex.matrices[0].matrix_id], smd.transform[vertex.matrices[0].matrix_id]) * vertex.matrices[0].weight;
-                        for(int i = 1; i < vertex.matrices.Count; i++)
-                        {
-                            transforms += Matrix4x4.Multiply(smd.inverse_transform_reference[vertex.matrices[i].matrix_id], smd.transform[vertex.matrices[i].matrix_id]) * vertex.matrices[i].weight;
-                        }
-
-                        Vector4 v = Vector4.Transform(new Vector4(vertex.vertex, 1), transforms);
-                        Vector2 t = vertex.textcoords;
-                        Gl.glTexCoord2f(t.X, t.Y);
-                        Gl.glVertex3f(v.X, v.Y, v.Z);
-                    }
-                    Gl.glEnd();
+                    mesh.Draw(true);
                 }
-
+                else
+                {
+                    mesh.Draw(false);
+                }
+                
                 Gl.glPopMatrix();
             }
 
@@ -309,30 +263,65 @@ namespace MeshReducer
             this.Close();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private bool DeleteOldAndCreateNew()
         {
-            is_loaded = false;
             progressBar_load_obj.Value = 0;
             label_load_obj.Text = "0 %";
 
-            if (obj != null)
+            // Mesh
+            if (mesh != null)
             {
-                foreach (OBJLoader.OBJLoader.Material material in obj.materials)
-                {
-                    material.texture.Release();
-                }
+                mesh.Release();
+                mesh = null;
 
-                obj.Release();
-                obj = null;
                 System.GC.Collect();
             }
-            
-            obj = new OBJLoader.OBJLoader();
+            mesh = new Mesh();
+            if (mesh == null)
+            {
+                return false;
+            }
+
+            // OBJ
+            if (obj != null)
+            {
+                obj.Release();
+                obj = null;
+
+                System.GC.Collect();
+            }
+
+            obj = new OBJLoader();
             if (obj == null)
+            {
+                return false;
+            }
+            
+            // SMD
+            if (smd != null)
+            {
+                smd.Release();
+                smd = null;
+
+                System.GC.Collect();
+            }
+
+            smd = new SMDLoader();
+            if (smd == null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (DeleteOldAndCreateNew() == false)
             {
                 return;
             }
-
+            
             OpenFileDialog theDialog = new OpenFileDialog();
             theDialog.Title = "Open OBJ File";
             theDialog.Filter = "OBJ files|*.obj";
@@ -350,7 +339,7 @@ namespace MeshReducer
                 return;
             }
 
-            if (!obj.Load(directory, filename)) {
+            if (!obj.Load(directory, filename, mesh)) {
                 return;
             }
 
@@ -362,7 +351,7 @@ namespace MeshReducer
             label_load_obj.Text = percent + " %";
 
             // load textures
-            foreach (OBJLoader.OBJLoader.Material material in obj.materials)
+            foreach (Mesh.Material material in mesh.materials)
             {
                 progressBar_load_obj.Value++;
                 progressBar_load_obj.Update();
@@ -372,12 +361,12 @@ namespace MeshReducer
                 label_load_obj.Update();
 
                 string image_filename = "";
-                if (material.texture_filename.Contains(":"))
+                if (material.texture_name.Contains(":"))
                 {
-                    image_filename = material.texture_filename;
+                    image_filename = material.texture_name;
                 }
                 else {
-                    image_filename = directory + @"\" + material.texture_filename;
+                    image_filename = directory + @"\" + material.texture_name;
                 }
 
                 if (!material.texture.Load(image_filename))
@@ -394,6 +383,7 @@ namespace MeshReducer
             trackBar_rotate_x.Value = 0;
             trackBar_rotate_y.Value = 0;
             trackBar_rotate_z.Value = 0;
+            comboBox_animations.Items.Clear();
 
             // set up camera
             center = Vector3.Divide(obj.min + obj.max, 2.0f);
@@ -403,7 +393,7 @@ namespace MeshReducer
             camera.dir = Vector3.Normalize(center - camera.pos);
             camera.SetVelocity(radius / 5.0f);
 
-            //is_loaded = true;
+            mesh.is_loaded = true;
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -528,22 +518,7 @@ namespace MeshReducer
 
         private void button3_Click_1(object sender, EventArgs e)
         {
-            is_loaded = false;
-
-            if (smd != null)
-            {
-                foreach (SMDLoader.SMDLoader.Material material in smd.materials)
-                {
-                    material.texture.Release();
-                }
-
-                smd.Release();
-                smd = null;
-                System.GC.Collect();
-            }
-
-            smd = new SMDLoader.SMDLoader();
-            if (smd == null)
+            if (DeleteOldAndCreateNew() == false)
             {
                 return;
             }
@@ -567,12 +542,12 @@ namespace MeshReducer
                 return;
             }
 
-            if (!smd.LoadReference(directory, filename))
+            if (!smd.LoadReference(directory, filename, mesh))
             {
                 return;
             }
 
-            foreach (SMDLoader.SMDLoader.Material material in smd.materials)
+            foreach (Mesh.Material material in mesh.materials)
             {
                 string image_filename = directory + @"\" + material.texture_name;
                 if (!material.texture.Load(image_filename))
@@ -584,15 +559,16 @@ namespace MeshReducer
             trackBar_rotate_x.Value = 0;
             trackBar_rotate_y.Value = 0;
             trackBar_rotate_z.Value = 0;
+            comboBox_animations.Items.Clear();
 
             // set up camera
-            center = Vector3.Divide(smd.min + smd.max, 2.0f);
-            radius = Vector3.Distance(center, smd.max);
+            center = Vector3.Divide(mesh.min + mesh.max, 2.0f);
+            radius = Vector3.Distance(center, mesh.max);
             camera.pos = center + (new Vector3(0, 0, 1) * radius * 2.0f);
             camera.dir = Vector3.Normalize(center - camera.pos);
             camera.SetVelocity(radius / 1.0f);
 
-            //is_loaded = true;
+            mesh.is_loaded = true;
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -622,7 +598,7 @@ namespace MeshReducer
             }
 
             string anim_name = filename;
-            if (!smd.AddAnimation(directory, filename, anim_name, 30.0f))
+            if (!smd.AddAnimation(directory, filename, anim_name, 1.0f))
             {
                 return;
             }
@@ -638,9 +614,27 @@ namespace MeshReducer
             {
                 smd.SetAnimation(anim_name);
                 time = 0.0f;
-
-                is_loaded = true;
             }
+        }
+
+        private void button_smd_save_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label5_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void trackBar_rotate_x_Scroll(object sender, EventArgs e)
+        {
+
+        }
+
+        private void trackBar_animspeed_Scroll(object sender, EventArgs e)
+        {
+            label_smd_speed.Text = "Speed (" + trackBar_animspeed.Value + " FPS):";
         }
     }
 }

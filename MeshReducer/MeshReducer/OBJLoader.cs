@@ -6,11 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 using System.Numerics;
-using Tao.OpenGl;
 
-using MeshReducer.Texture;
-
-namespace MeshReducer.OBJLoader
+namespace MeshReducer
 {
     class OBJLoader
     {
@@ -36,7 +33,7 @@ namespace MeshReducer.OBJLoader
         public class Material
         {
             public string texture_filename;
-            public Texture.Texture texture;
+            public Texture texture;
 
             public List<Vertex> indices;
 
@@ -44,7 +41,7 @@ namespace MeshReducer.OBJLoader
             {
                 indices = new List<Vertex>();
                 this.texture_filename = texture_filename;
-                texture = new Texture.Texture();
+                texture = new Texture();
             }
             
             public void Release()
@@ -67,7 +64,7 @@ namespace MeshReducer.OBJLoader
             materials = new List<Material>();
         }
 
-        public Boolean Load(string directory, string filename)
+        public Boolean Load(string directory, string filename, Mesh mesh)
         {
             string[] lines = File.ReadAllText(directory + @"\" + filename).Split(new char[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
 
@@ -186,6 +183,23 @@ namespace MeshReducer.OBJLoader
                             break;
                         }
                 }
+            }
+
+            // copy
+            foreach (Material material in materials)
+            {
+                Mesh.Material mat = new Mesh.Material(material.texture_filename);
+
+                for (int i = 0; i < material.indices.Count; i++)
+                {
+                    Vector3 v = vertices[material.indices[i].id_vertex];
+                    Vector2 t = text_coords[material.indices[i].id_textcoord];
+                    
+                    Mesh.Vertex vertex = new Mesh.Vertex(v, t);
+                    mat.vertices.Add(vertex);
+                }
+
+                mesh.materials.Add(mat);
             }
 
             return true;

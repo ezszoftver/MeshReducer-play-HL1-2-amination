@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using System.Numerics;
 
-namespace MeshReducer.Camera
+namespace MeshReducer
 {
     class Camera
     {

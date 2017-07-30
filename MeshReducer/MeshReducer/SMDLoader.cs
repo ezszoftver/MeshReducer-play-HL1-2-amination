@@ -6,11 +6,7 @@ using System.Text;
 
 using System.Numerics;
 
-using Tao.OpenGl;
-
-using MeshReducer.Texture;
-
-namespace MeshReducer.SMDLoader
+namespace MeshReducer
 {
 
     class SMDLoader
@@ -72,10 +68,10 @@ namespace MeshReducer.SMDLoader
         List<Animation> animations;
 
         public Skeleton reference_skeleton;
-        public Matrix4x4[] transform_reference;
-        public Matrix4x4[] inverse_transform_reference;
+        //public Matrix4x4[] transform_reference;
+        //public Matrix4x4[] inverse_transform_reference;
         Skeleton current_skeleton;
-        public Matrix4x4[] transform;
+        /*public Matrix4x4[] transform;
 
         public class MatrixIdAndWeight
         {
@@ -110,7 +106,7 @@ namespace MeshReducer.SMDLoader
         public class Material
         {
             public string texture_name;
-            public Texture.Texture texture;
+            public Texture texture;
 
             public List<Vertex> vertices;
 
@@ -118,27 +114,27 @@ namespace MeshReducer.SMDLoader
             {
                 vertices = new List<Vertex>();
                 this.texture_name = texture_name;
-                texture = new Texture.Texture();
+                texture = new Texture();
             }
         }
-        public List<Material> materials;
+        public List<Material> materials;*/
 
         private Dictionary<string, int> material_to_id;
-        public Vector3 min, max;
+        //public Vector3 min, max;
 
         public SMDLoader()
         {
             nodes = new List<Node>();
             animations = new List<Animation>();
-            materials = new List<Material>();
+            //materials = new List<Material>();
             material_to_id = new Dictionary<string, int>();
             reference_skeleton = new Skeleton();
             current_skeleton = new Skeleton();
-            min = new Vector3(0, 0, 0);
-            max = new Vector3(0, 0, 0);
+            //min = new Vector3(0, 0, 0);
+            //max = new Vector3(0, 0, 0);
         }
 
-        public bool LoadReference(string directory, string filename)
+        public bool LoadReference(string directory, string filename, Mesh mesh)
         {
             string[] lines = File.ReadAllText(directory + @"\" + filename).Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -189,7 +185,7 @@ namespace MeshReducer.SMDLoader
                     if (!material_to_id.ContainsKey(texture_name)) {
                         mat_id++;
                         material_to_id.Add(texture_name, mat_id);
-                        materials.Add(new Material(texture_name));
+                        mesh.materials.Add(new Mesh.Material(texture_name));
                     }
 
                     is_triangles_texturename = false;
@@ -210,13 +206,13 @@ namespace MeshReducer.SMDLoader
                         // textcoords
                         Vector2 t = new Vector2(float.Parse(words[7]), float.Parse(words[8]));
 
-                        Vertex vertex = new Vertex(v, t);
+                        Mesh.Vertex vertex = new Mesh.Vertex(v, t);
 
                         // one matrix
                         vertex.AddMatrix(matrix_id, weight);
 
                         // add
-                        materials[mat_id].vertices.Add(vertex);
+                        mesh.materials[mat_id].vertices.Add(vertex);
                     }
                     else // HL2
                     {
@@ -225,7 +221,7 @@ namespace MeshReducer.SMDLoader
                         // textcoords
                         Vector2 t = new Vector2(float.Parse(words[7]), float.Parse(words[8]));
 
-                        Vertex vertex = new Vertex(v, t);
+                        Mesh.Vertex vertex = new Mesh.Vertex(v, t);
 
                         // many matrix
                         int n = int.Parse(words[9]);
@@ -241,7 +237,7 @@ namespace MeshReducer.SMDLoader
                         }
 
                         // add
-                        materials[mat_id].vertices.Add(vertex);
+                        mesh.materials[mat_id].vertices.Add(vertex);
                     }
 
                     is_triangles_vrepeat++;
@@ -257,22 +253,22 @@ namespace MeshReducer.SMDLoader
             }
 
             // min-max
-            min = new Vector3(+1000000.0f, +1000000.0f, +1000000.0f);
-            max = new Vector3(-1000000.0f, -1000000.0f, -1000000.0f);
-            foreach (Material material in materials)
+            mesh.min = new Vector3(+1000000.0f, +1000000.0f, +1000000.0f);
+            mesh.max = new Vector3(-1000000.0f, -1000000.0f, -1000000.0f);
+            foreach (Mesh.Material material in mesh.materials)
             {
-                foreach (Vertex vertex in material.vertices)
+                foreach (Mesh.Vertex vertex in material.vertices)
                 {
                     Vector3 v = vertex.vertex;
 
                     // min
-                    if (v.X < min.X) { min.X = v.X; }
-                    if (v.Y < min.Y) { min.Y = v.Y; }
-                    if (v.Z < min.Z) { min.Z = v.Z; }
+                    if (v.X < mesh.min.X) { mesh.min.X = v.X; }
+                    if (v.Y < mesh.min.Y) { mesh.min.Y = v.Y; }
+                    if (v.Z < mesh.min.Z) { mesh.min.Z = v.Z; }
                     // max
-                    if (max.X < v.X) { max.X = v.X; }
-                    if (max.Y < v.Y) { max.Y = v.Y; }
-                    if (max.Z < v.Z) { max.Z = v.Z; }
+                    if (mesh.max.X < v.X) { mesh.max.X = v.X; }
+                    if (mesh.max.Y < v.Y) { mesh.max.Y = v.Y; }
+                    if (mesh.max.Z < v.Z) { mesh.max.Z = v.Z; }
                 }
             }
 
@@ -283,13 +279,18 @@ namespace MeshReducer.SMDLoader
             }
 
             // calc matrices
-            transform = new Matrix4x4[reference_skeleton.bones.Count()];
-            transform_reference = new Matrix4x4[reference_skeleton.bones.Count()];
-            inverse_transform_reference = new Matrix4x4[reference_skeleton.bones.Count()];
+            mesh.transforms = new List<Matrix4x4>();
+            for (int i = 0; i < reference_skeleton.bones.Count(); i++) { mesh.transforms.Add(new Matrix4x4()); }
+
+            mesh.inverse_transforms_reference = new List<Matrix4x4>();
+            for (int i = 0; i < reference_skeleton.bones.Count(); i++) { mesh.inverse_transforms_reference.Add(new Matrix4x4()); }
+
             for (int i = 0; i < reference_skeleton.bones.Count(); i++)
             {
-                transform_reference[i] = GetReferenceMatrix(i);
-                Matrix4x4.Invert(GetReferenceMatrix(i), out inverse_transform_reference[i]);
+                //transform_reference[i] = GetReferenceMatrix(i);
+                Matrix4x4 invert;
+                Matrix4x4.Invert(GetReferenceMatrix(i), out invert);
+                mesh.inverse_transforms_reference[i] = invert;
             }
 
             return true;
@@ -376,12 +377,23 @@ namespace MeshReducer.SMDLoader
             }
         }
 
+        public void SetFPS(int fps)
+        {
+            curr_animation.fps = fps;
+        }
+
+        public bool IsAnimationSelected()
+        {
+            if (curr_animation == null) { return false; }
+            return true;
+        }
+
         public float GetFullTime()
         {
             return ((float)(curr_animation.times.Count() - 1) / curr_animation.fps);
         }
 
-        public void SetTime(float time)
+        public void SetTime(float time, Mesh mesh)
         {
             // Set Skeleton
             int start = (int)Math.Floor((double)(time * curr_animation.fps));
@@ -402,7 +414,7 @@ namespace MeshReducer.SMDLoader
             }
 
             // Update Matrices
-            UpdateMatrices();
+            UpdateMatrices(mesh);
         }
 
         private float GetSignedRad(float alfa, float beta)
@@ -432,12 +444,12 @@ namespace MeshReducer.SMDLoader
             }
         }
 
-        void UpdateMatrices()
+        void UpdateMatrices(Mesh mesh)
         {
             // mátrixok kiszámítása rekurzívan
             for (int i = 0; i < current_skeleton.bones.Count(); i++)
             {
-                transform[i] = GetMatrix(i);
+                mesh.transforms[i] = GetMatrix(i);
             }
         }
 
