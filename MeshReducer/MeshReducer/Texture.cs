@@ -18,6 +18,13 @@ namespace MeshReducer
             id = new int[1];
         }
 
+        public Texture(Texture b)
+        {
+            id = new int[1];
+
+            id[0] = b.id[0];
+        }
+
         public bool Load(string filename)
         {
             Bitmap textureImage = null;

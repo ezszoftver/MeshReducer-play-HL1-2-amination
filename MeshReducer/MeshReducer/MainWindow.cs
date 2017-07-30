@@ -271,7 +271,7 @@ namespace MeshReducer
             // Mesh
             if (mesh != null)
             {
-                mesh.Release();
+                mesh.Release(true);
                 mesh = null;
 
                 System.GC.Collect();
@@ -371,7 +371,10 @@ namespace MeshReducer
 
                 if (!material.texture.Load(image_filename))
                 {
-                    return;
+                    if (!material.texture.Load("TextureNotFound.bmp"))
+                    {
+                        return;
+                    }
                 }
             }
 
@@ -386,9 +389,9 @@ namespace MeshReducer
             comboBox_animations.Items.Clear();
 
             // set up camera
-            center = Vector3.Divide(obj.min + obj.max, 2.0f);
+            center = Vector3.Divide(mesh.min + mesh.max, 2.0f);
 
-            radius = Vector3.Distance(center, obj.max);
+            radius = Vector3.Distance(center, mesh.max);
             camera.pos = center + (new Vector3(0, 0, 1) * radius * 2.0f);
             camera.dir = Vector3.Normalize(center - camera.pos);
             camera.SetVelocity(radius / 5.0f);
@@ -552,7 +555,10 @@ namespace MeshReducer
                 string image_filename = directory + @"\" + material.texture_name;
                 if (!material.texture.Load(image_filename))
                 {
-                    return;
+                    if (!material.texture.Load("TextureNotFound.bmp"))
+                    {
+                        return;
+                    }
                 }
             }
 

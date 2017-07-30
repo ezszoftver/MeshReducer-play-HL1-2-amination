@@ -32,6 +32,18 @@ namespace MeshReducer
                 this.matrices = new List<MatrixIdAndWeight>();
             }
 
+            public Vertex(Vertex b)
+            {
+                vertex = new Vector3(b.vertex.X, b.vertex.Y, b.vertex.Z);
+                textcoords = new Vector2(b.textcoords.X, b.textcoords.Y);
+                matrices = new List<MatrixIdAndWeight>();
+                foreach (MatrixIdAndWeight b_matrix in b.matrices)
+                {
+                    MatrixIdAndWeight matrix = new MatrixIdAndWeight(b_matrix.matrix_id, b_matrix.weight);
+                    matrices.Add(matrix);
+                }
+            }
+
             public void AddMatrix(int matrix_id, float weight)
             {
                 matrices.Add(new MatrixIdAndWeight(matrix_id, weight));
@@ -71,6 +83,71 @@ namespace MeshReducer
             materials = new List<Material>();
             min = new Vector3(0, 0, 0);
             max = new Vector3(0, 0, 0);
+        }
+
+        public Mesh(Mesh b)
+        {
+            is_loaded = b.is_loaded;
+
+            transforms = new List<Matrix4x4>();
+            foreach (Matrix4x4 b_m in b.transforms)
+            {
+                Matrix4x4 m = new Matrix4x4(b_m.M11, b_m.M12, b_m.M13, b_m.M14,
+                                            b_m.M21, b_m.M22, b_m.M23, b_m.M24,
+                                            b_m.M31, b_m.M32, b_m.M33, b_m.M34,
+                                            b_m.M41, b_m.M42, b_m.M43, b_m.M44);
+                transforms.Add(m);
+            }
+
+            inverse_transforms_reference = new List<Matrix4x4>();
+            foreach (Matrix4x4 b_m in b.inverse_transforms_reference)
+            {
+                Matrix4x4 m = new Matrix4x4(b_m.M11, b_m.M12, b_m.M13, b_m.M14,
+                                            b_m.M21, b_m.M22, b_m.M23, b_m.M24,
+                                            b_m.M31, b_m.M32, b_m.M33, b_m.M34,
+                                            b_m.M41, b_m.M42, b_m.M43, b_m.M44);
+                inverse_transforms_reference.Add(m);
+            }
+
+            materials = new List<Material>();
+            min = new Vector3(+1000000.0f, +1000000.0f, +1000000.0f);
+            max = new Vector3(-1000000.0f, -1000000.0f, -1000000.0f);
+
+            foreach (Material b_mat in b.materials)
+            {
+                Material mat = new Material(b_mat.texture_name);
+                mat.texture = b_mat.texture;
+
+                foreach (Vertex b_v in b_mat.vertices)
+                {
+                    Vertex v = new Vertex(b_v);
+
+                    // min
+                    if (v.vertex.X < min.X) { min.X = v.vertex.X; }
+                    if (v.vertex.Y < min.Y) { min.Y = v.vertex.Y; }
+                    if (v.vertex.Z < min.Z) { min.Z = v.vertex.Z; }
+                    // max
+                    if (max.X < v.vertex.X) { max.X = v.vertex.X; }
+                    if (max.Y < v.vertex.Y) { max.Y = v.vertex.Y; }
+                    if (max.Z < v.vertex.Z) { max.Z = v.vertex.Z; }
+
+                    mat.vertices.Add(v);
+                }
+
+                materials.Add(mat);
+            }
+        }
+
+        public int GetVerticesCount()
+        {
+            int count = 0;
+
+            foreach (Material material in materials)
+            {
+                count += material.vertices.Count();
+            }
+
+            return count;
         }
 
         public void Draw(bool is_animated)
@@ -116,13 +193,16 @@ namespace MeshReducer
             }
         }
 
-        public void Release()
+        public void Release(bool is_delete_textures)
         {
             foreach (Material material in materials)
             {
-                material.texture.Release();
-                material.texture = null;
-
+                if (is_delete_textures)
+                {
+                    material.texture.Release();
+                    material.texture = null;
+                }
+                
                 foreach (Vertex vertex in material.vertices)
                 {
                     vertex.matrices.Clear();
@@ -134,7 +214,11 @@ namespace MeshReducer
             }
 
             transforms.Clear();
-            materials.Clear();
+            transforms = null;
+            inverse_transforms_reference.Clear();
+            inverse_transforms_reference = null;
+
+            if (is_delete_textures) { materials.Clear(); }
         }
     }
 }

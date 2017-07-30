@@ -11,7 +11,7 @@ namespace MeshReducer
 {
     class OBJLoader
     {
-        public Vector3 min, max;
+        //public Vector3 min, max;
         public List<Vector3> vertices;
         public List<Vector2> text_coords;
 
@@ -55,8 +55,8 @@ namespace MeshReducer
 
         public OBJLoader()
         {
-            min = new Vector3(0, 0, 0);
-            max = new Vector3(0, 0, 0);
+            //min = new Vector3(0, 0, 0);
+            //max = new Vector3(0, 0, 0);
             vertices = new List<Vector3>();
             text_coords = new List<Vector2>();
             material_to_id = new Dictionary<string, UInt32>();
@@ -68,8 +68,8 @@ namespace MeshReducer
         {
             string[] lines = File.ReadAllText(directory + @"\" + filename).Split(new char[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
 
-            min = new Vector3(+1000000.0f, +1000000.0f, +1000000.0f);
-            max = new Vector3(-1000000.0f, -1000000.0f, -1000000.0f);
+            mesh.min = new Vector3(+1000000.0f, +1000000.0f, +1000000.0f);
+            mesh.max = new Vector3(-1000000.0f, -1000000.0f, -1000000.0f);
             UInt32 material_id = 0;
 
             foreach (string line in lines) {
@@ -84,13 +84,13 @@ namespace MeshReducer
                             vertices.Add(v);
 
                             // min
-                            if (v.X < min.X) { min.X = v.X; }
-                            if (v.Y < min.Y) { min.Y = v.Y; }
-                            if (v.Z < min.Z) { min.Z = v.Z; }
+                            if (v.X < mesh.min.X) { mesh.min.X = v.X; }
+                            if (v.Y < mesh.min.Y) { mesh.min.Y = v.Y; }
+                            if (v.Z < mesh.min.Z) { mesh.min.Z = v.Z; }
                             // max
-                            if (max.X < v.X) { max.X = v.X; }
-                            if (max.Y < v.Y) { max.Y = v.Y; }
-                            if (max.Z < v.Z) { max.Z = v.Z; }
+                            if (mesh.max.X < v.X) { mesh.max.X = v.X; }
+                            if (mesh.max.Y < v.Y) { mesh.max.Y = v.Y; }
+                            if (mesh.max.Z < v.Z) { mesh.max.Z = v.Z; }
 
                             break;
                         }
