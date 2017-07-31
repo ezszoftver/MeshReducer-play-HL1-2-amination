@@ -42,10 +42,16 @@
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.tabSMD = new System.Windows.Forms.TabPage();
+            this.label_smd_save = new System.Windows.Forms.Label();
+            this.progressBar_smd_save = new System.Windows.Forms.ProgressBar();
+            this.button_smd_save = new System.Windows.Forms.Button();
+            this.label_smd_speed = new System.Windows.Forms.Label();
+            this.trackBar_animspeed = new System.Windows.Forms.TrackBar();
             this.comboBox_animations = new System.Windows.Forms.ComboBox();
             this.button4 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.tabOptions = new System.Windows.Forms.TabPage();
+            this.label_vertices = new System.Windows.Forms.Label();
             this.groupBox_options_reduce = new System.Windows.Forms.GroupBox();
             this.button_calc = new System.Windows.Forms.Button();
             this.label_reduce = new System.Windows.Forms.Label();
@@ -58,16 +64,14 @@
             this.label3 = new System.Windows.Forms.Label();
             this.trackBar_rotate_x = new System.Windows.Forms.TrackBar();
             this.label2 = new System.Windows.Forms.Label();
-            this.trackBar_animspeed = new System.Windows.Forms.TrackBar();
-            this.label_smd_speed = new System.Windows.Forms.Label();
-            this.button_smd_save = new System.Windows.Forms.Button();
-            this.label_smd_save = new System.Windows.Forms.Label();
-            this.progressBar_smd_save = new System.Windows.Forms.ProgressBar();
+            this.label_percent = new System.Windows.Forms.Label();
+            this.button_draw_type = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabOBJ.SuspendLayout();
             this.tabSMD.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar_animspeed)).BeginInit();
             this.tabOptions.SuspendLayout();
             this.groupBox_options_reduce.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_reduce_percent)).BeginInit();
@@ -75,7 +79,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_rotate_z)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_rotate_y)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_rotate_x)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar_animspeed)).BeginInit();
             this.SuspendLayout();
             // 
             // timer1
@@ -206,6 +209,52 @@
             this.tabSMD.Text = "SMD File";
             this.tabSMD.UseVisualStyleBackColor = true;
             // 
+            // label_smd_save
+            // 
+            this.label_smd_save.AutoSize = true;
+            this.label_smd_save.Location = new System.Drawing.Point(412, 130);
+            this.label_smd_save.Name = "label_smd_save";
+            this.label_smd_save.Size = new System.Drawing.Size(24, 13);
+            this.label_smd_save.TabIndex = 12;
+            this.label_smd_save.Text = "0 %";
+            this.label_smd_save.Click += new System.EventHandler(this.label5_Click);
+            // 
+            // progressBar_smd_save
+            // 
+            this.progressBar_smd_save.Location = new System.Drawing.Point(117, 125);
+            this.progressBar_smd_save.Name = "progressBar_smd_save";
+            this.progressBar_smd_save.Size = new System.Drawing.Size(619, 23);
+            this.progressBar_smd_save.TabIndex = 11;
+            // 
+            // button_smd_save
+            // 
+            this.button_smd_save.Location = new System.Drawing.Point(6, 125);
+            this.button_smd_save.Name = "button_smd_save";
+            this.button_smd_save.Size = new System.Drawing.Size(105, 23);
+            this.button_smd_save.TabIndex = 10;
+            this.button_smd_save.Text = "Save As";
+            this.button_smd_save.UseVisualStyleBackColor = true;
+            this.button_smd_save.Click += new System.EventHandler(this.button_smd_save_Click);
+            // 
+            // label_smd_speed
+            // 
+            this.label_smd_speed.AutoSize = true;
+            this.label_smd_speed.Location = new System.Drawing.Point(21, 78);
+            this.label_smd_speed.Name = "label_smd_speed";
+            this.label_smd_speed.Size = new System.Drawing.Size(41, 13);
+            this.label_smd_speed.TabIndex = 9;
+            this.label_smd_speed.Text = "Speed:";
+            // 
+            // trackBar_animspeed
+            // 
+            this.trackBar_animspeed.Location = new System.Drawing.Point(117, 62);
+            this.trackBar_animspeed.Maximum = 100;
+            this.trackBar_animspeed.Name = "trackBar_animspeed";
+            this.trackBar_animspeed.Size = new System.Drawing.Size(213, 45);
+            this.trackBar_animspeed.TabIndex = 8;
+            this.trackBar_animspeed.Value = 30;
+            this.trackBar_animspeed.Scroll += new System.EventHandler(this.trackBar_animspeed_Scroll);
+            // 
             // comboBox_animations
             // 
             this.comboBox_animations.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -239,6 +288,9 @@
             // tabOptions
             // 
             this.tabOptions.Controls.Add(this.label1);
+            this.tabOptions.Controls.Add(this.button_draw_type);
+            this.tabOptions.Controls.Add(this.label_percent);
+            this.tabOptions.Controls.Add(this.label_vertices);
             this.tabOptions.Controls.Add(this.groupBox_options_reduce);
             this.tabOptions.Controls.Add(this.groupBox3);
             this.tabOptions.Location = new System.Drawing.Point(4, 22);
@@ -248,6 +300,16 @@
             this.tabOptions.TabIndex = 2;
             this.tabOptions.Text = "Options";
             this.tabOptions.UseVisualStyleBackColor = true;
+            // 
+            // label_vertices
+            // 
+            this.label_vertices.AutoSize = true;
+            this.label_vertices.BackColor = System.Drawing.Color.Transparent;
+            this.label_vertices.Location = new System.Drawing.Point(163, 57);
+            this.label_vertices.Name = "label_vertices";
+            this.label_vertices.Size = new System.Drawing.Size(176, 13);
+            this.label_vertices.TabIndex = 4;
+            this.label_vertices.Text = "Vertices: 0 / 0 ( Current Vertices: 0 )";
             // 
             // groupBox_options_reduce
             // 
@@ -270,12 +332,13 @@
             this.button_calc.TabIndex = 1;
             this.button_calc.Text = "Calc";
             this.button_calc.UseVisualStyleBackColor = true;
+            this.button_calc.Click += new System.EventHandler(this.button_calc_Click);
             // 
             // label_reduce
             // 
             this.label_reduce.AutoSize = true;
             this.label_reduce.BackColor = System.Drawing.Color.Transparent;
-            this.label_reduce.Location = new System.Drawing.Point(236, 75);
+            this.label_reduce.Location = new System.Drawing.Point(276, 75);
             this.label_reduce.Name = "label_reduce";
             this.label_reduce.Size = new System.Drawing.Size(24, 13);
             this.label_reduce.TabIndex = 3;
@@ -285,9 +348,12 @@
             // 
             this.trackBar_reduce_percent.Location = new System.Drawing.Point(6, 19);
             this.trackBar_reduce_percent.Maximum = 100;
+            this.trackBar_reduce_percent.Minimum = 1;
             this.trackBar_reduce_percent.Name = "trackBar_reduce_percent";
             this.trackBar_reduce_percent.Size = new System.Drawing.Size(481, 45);
             this.trackBar_reduce_percent.TabIndex = 0;
+            this.trackBar_reduce_percent.Value = 1;
+            this.trackBar_reduce_percent.Scroll += new System.EventHandler(this.trackBar_reduce_percent_Scroll);
             // 
             // progressBar_reduce
             // 
@@ -370,61 +436,37 @@
             this.label2.TabIndex = 0;
             this.label2.Text = "X Axis";
             // 
-            // trackBar_animspeed
+            // label_percent
             // 
-            this.trackBar_animspeed.Location = new System.Drawing.Point(117, 62);
-            this.trackBar_animspeed.Maximum = 100;
-            this.trackBar_animspeed.Name = "trackBar_animspeed";
-            this.trackBar_animspeed.Size = new System.Drawing.Size(213, 45);
-            this.trackBar_animspeed.TabIndex = 8;
-            this.trackBar_animspeed.Value = 30;
-            this.trackBar_animspeed.Scroll += new System.EventHandler(this.trackBar_animspeed_Scroll);
+            this.label_percent.AutoSize = true;
+            this.label_percent.BackColor = System.Drawing.Color.Transparent;
+            this.label_percent.Location = new System.Drawing.Point(163, 44);
+            this.label_percent.Name = "label_percent";
+            this.label_percent.Size = new System.Drawing.Size(79, 13);
+            this.label_percent.TabIndex = 5;
+            this.label_percent.Text = "Percent: 100 %";
+            this.label_percent.Click += new System.EventHandler(this.label5_Click_1);
             // 
-            // label_smd_speed
+            // button_draw_type
             // 
-            this.label_smd_speed.AutoSize = true;
-            this.label_smd_speed.Location = new System.Drawing.Point(21, 78);
-            this.label_smd_speed.Name = "label_smd_speed";
-            this.label_smd_speed.Size = new System.Drawing.Size(41, 13);
-            this.label_smd_speed.TabIndex = 9;
-            this.label_smd_speed.Text = "Speed:";
-            // 
-            // button_smd_save
-            // 
-            this.button_smd_save.Location = new System.Drawing.Point(6, 125);
-            this.button_smd_save.Name = "button_smd_save";
-            this.button_smd_save.Size = new System.Drawing.Size(105, 23);
-            this.button_smd_save.TabIndex = 10;
-            this.button_smd_save.Text = "Save As";
-            this.button_smd_save.UseVisualStyleBackColor = true;
-            this.button_smd_save.Click += new System.EventHandler(this.button_smd_save_Click);
-            // 
-            // label_smd_save
-            // 
-            this.label_smd_save.AutoSize = true;
-            this.label_smd_save.Location = new System.Drawing.Point(412, 130);
-            this.label_smd_save.Name = "label_smd_save";
-            this.label_smd_save.Size = new System.Drawing.Size(24, 13);
-            this.label_smd_save.TabIndex = 12;
-            this.label_smd_save.Text = "0 %";
-            this.label_smd_save.Click += new System.EventHandler(this.label5_Click);
-            // 
-            // progressBar_smd_save
-            // 
-            this.progressBar_smd_save.Location = new System.Drawing.Point(117, 125);
-            this.progressBar_smd_save.Name = "progressBar_smd_save";
-            this.progressBar_smd_save.Size = new System.Drawing.Size(619, 23);
-            this.progressBar_smd_save.TabIndex = 11;
+            this.button_draw_type.Location = new System.Drawing.Point(248, 6);
+            this.button_draw_type.Name = "button_draw_type";
+            this.button_draw_type.Size = new System.Drawing.Size(159, 23);
+            this.button_draw_type.TabIndex = 6;
+            this.button_draw_type.Text = "Texture and Wireframe";
+            this.button_draw_type.UseVisualStyleBackColor = true;
+            this.button_draw_type.Click += new System.EventHandler(this.button_draw_type_Click);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.BackColor = System.Drawing.Color.Transparent;
-            this.label1.Location = new System.Drawing.Point(163, 57);
+            this.label1.Location = new System.Drawing.Point(163, 12);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(74, 13);
-            this.label1.TabIndex = 4;
-            this.label1.Text = "Vertices: 0 / 0";
+            this.label1.Size = new System.Drawing.Size(79, 13);
+            this.label1.TabIndex = 7;
+            this.label1.Text = "Drawing Mode:";
+            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // MainWindow
             // 
@@ -453,6 +495,7 @@
             this.tabOBJ.PerformLayout();
             this.tabSMD.ResumeLayout(false);
             this.tabSMD.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar_animspeed)).EndInit();
             this.tabOptions.ResumeLayout(false);
             this.tabOptions.PerformLayout();
             this.groupBox_options_reduce.ResumeLayout(false);
@@ -463,7 +506,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_rotate_z)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_rotate_y)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_rotate_x)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar_animspeed)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -505,6 +547,9 @@
         private System.Windows.Forms.TrackBar trackBar_animspeed;
         private System.Windows.Forms.Label label_smd_save;
         private System.Windows.Forms.ProgressBar progressBar_smd_save;
+        private System.Windows.Forms.Label label_vertices;
+        private System.Windows.Forms.Label label_percent;
+        private System.Windows.Forms.Button button_draw_type;
         private System.Windows.Forms.Label label1;
     }
 }

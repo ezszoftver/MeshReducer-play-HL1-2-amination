@@ -18,3 +18,4 @@ e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\bin\x64\Debug\Tao.Platform
 e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Debug\MeshReducer.MainWindow.resources
 e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Debug\MeshReducer.Properties.Resources.resources
 e:\Progs\Learn\GDF\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Debug\MeshReducer.csproj.GenerateResource.Cache
+c:\Users\ez88\Desktop\Zarovizsga\MeshReducer\MeshReducer\obj\x64\Debug\MeshReducer.csprojResolveAssemblyReference.cache

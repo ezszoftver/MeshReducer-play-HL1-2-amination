@@ -30,6 +30,7 @@ namespace MeshReducer
         DateTime current_datetime;
         Camera camera;
 
+        private Mesh full_mesh;
         private Mesh mesh;
         private OBJLoader obj;
         private SMDLoader smd;
@@ -102,6 +103,17 @@ namespace MeshReducer
             }
 
             label_smd_speed.Text = "Speed (" + trackBar_animspeed.Value + " FPS):";
+
+            label_percent.Text = "Percent: " + (100 - trackBar_reduce_percent.Value + 1) + " %";
+            if (mesh != null && mesh.is_loaded)
+            {
+                float weight = (100.0f - (float)trackBar_reduce_percent.Value + 1.0f) / 100.0f;
+                label_vertices.Text = "Vertices: " + full_mesh.GetVerticesCount() + " / " + (int)((float)full_mesh.GetVerticesCount() * weight) + " ( Current Vertices: " + mesh.GetVerticesCount() + " )";
+            }
+            else
+            {
+                label_vertices.Text = "Vertices: 0 / 0 ( Current Vertices: 0 )";
+            }
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -164,11 +176,47 @@ namespace MeshReducer
                     if (time >= smd.GetFullTime()) time -= smd.GetFullTime();
                     smd.SetTime(time, mesh);
 
-                    mesh.Draw(true);
+                    switch (draw_type)
+                    {
+                        case(DrawType.TEXTURE):
+                            {
+                                mesh.Draw(true);
+                                break;
+                            }
+                        case (DrawType.WIREFRAME):
+                            {
+                                mesh.DrawWireFrame(true);
+                                break;
+                            }
+                        case (DrawType.TEXTURE_AND_WIREFRAME):
+                            {
+                                mesh.Draw(true);
+                                mesh.DrawWireFrame(true);
+                                break;
+                            }
+                    }
                 }
                 else
                 {
-                    mesh.Draw(false);
+                    switch (draw_type)
+                    {
+                        case (DrawType.TEXTURE):
+                            {
+                                mesh.Draw(false);
+                                break;
+                            }
+                        case (DrawType.WIREFRAME):
+                            {
+                                mesh.DrawWireFrame(false);
+                                break;
+                            }
+                        case (DrawType.TEXTURE_AND_WIREFRAME):
+                            {
+                                mesh.Draw(false);
+                                mesh.DrawWireFrame(false);
+                                break;
+                            }
+                    }
                 }
                 
                 Gl.glPopMatrix();
@@ -249,6 +297,15 @@ namespace MeshReducer
 
             Gl.glEnable(Gl.GL_DEPTH_TEST);
             Gl.glEnable(Gl.GL_TEXTURE_2D);
+            // cull back face
+            Gl.glEnable(Gl.GL_CULL_FACE);
+            // enable blending
+            Gl.glEnable(Gl.GL_BLEND);
+            Gl.glBlendFunc(Gl.GL_SRC_ALPHA, Gl.GL_ONE_MINUS_SRC_ALPHA);
+            // line smooth
+            Gl.glEnable(Gl.GL_LINE_SMOOTH);
+            Gl.glLineWidth(1.2f);
+            Gl.glHint(Gl.GL_LINE_SMOOTH_HINT, Gl.GL_NICEST);
 
             this.timer1.Start();
             current_datetime = elapsed_datetime = DateTime.Now;
@@ -278,6 +335,20 @@ namespace MeshReducer
             }
             mesh = new Mesh();
             if (mesh == null)
+            {
+                return false;
+            }
+
+            // Full Mesh
+            if (full_mesh != null)
+            {
+                full_mesh.Release(false);
+                full_mesh = null;
+
+                System.GC.Collect();
+            }
+            full_mesh = new Mesh();
+            if (full_mesh == null)
             {
                 return false;
             }
@@ -395,8 +466,10 @@ namespace MeshReducer
             camera.pos = center + (new Vector3(0, 0, 1) * radius * 2.0f);
             camera.dir = Vector3.Normalize(center - camera.pos);
             camera.SetVelocity(radius / 5.0f);
-
+            
             mesh.is_loaded = true;
+
+            full_mesh = new Mesh(mesh);
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -575,6 +648,8 @@ namespace MeshReducer
             camera.SetVelocity(radius / 1.0f);
 
             mesh.is_loaded = true;
+
+            full_mesh = new Mesh(mesh);
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -641,6 +716,80 @@ namespace MeshReducer
         private void trackBar_animspeed_Scroll(object sender, EventArgs e)
         {
             label_smd_speed.Text = "Speed (" + trackBar_animspeed.Value + " FPS):";
+        }
+
+        private void label5_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void trackBar_reduce_percent_Scroll(object sender, EventArgs e)
+        {
+        }
+
+        private void button_calc_Click(object sender, EventArgs e)
+        {
+            if (mesh != null && mesh.is_loaded)
+            {
+                full_mesh.is_loaded = false;
+                mesh = new Mesh(full_mesh);
+
+                float weight = (100.0f - (float)trackBar_reduce_percent.Value + 1.0f) / 100.0f;
+                int end_vertices_count = (int)((float)mesh.GetVerticesCount() * weight);
+
+                MeshReducer reducer = new MeshReducer(mesh);
+
+                int num_vertices = mesh.GetVerticesCount() - end_vertices_count;
+                while (end_vertices_count < mesh.GetVerticesCount() && mesh.GetVerticesCount() > 3)
+                {
+                    int curr_vertices = mesh.GetVerticesCount() - end_vertices_count;
+                    float percent = (1.0f - ((float)curr_vertices / (float)num_vertices)) * 100.0f;
+                    progressBar_reduce.Value = (int)percent;
+                    progressBar_reduce.Update();
+                    label_reduce.Text = ((int)percent) + " %";
+                    label_reduce.Update();
+
+                    reducer.EraseLine();
+                }
+
+                progressBar_reduce.Value = 100;
+                progressBar_reduce.Update();
+                label_reduce.Text = 100 + " %";
+                label_reduce.Update();
+
+                mesh.is_loaded = true;
+            }
+        }
+
+        enum DrawType { TEXTURE, TEXTURE_AND_WIREFRAME, WIREFRAME };
+        DrawType draw_type = DrawType.TEXTURE;
+
+        private void button_draw_type_Click(object sender, EventArgs e)
+        {
+            if (draw_type == DrawType.TEXTURE)
+            {
+                draw_type = DrawType.TEXTURE_AND_WIREFRAME;
+                button_draw_type.Text = "Wireframe";
+                return;
+            }
+            if (draw_type == DrawType.TEXTURE_AND_WIREFRAME)
+            {
+                draw_type = DrawType.WIREFRAME;
+                button_draw_type.Text = "Texture";
+                return;
+            }
+            if (draw_type == DrawType.WIREFRAME)
+            {
+                draw_type = DrawType.TEXTURE;
+                button_draw_type.Text = "Texture and Wireframe";
+                return;
+            }
+            
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

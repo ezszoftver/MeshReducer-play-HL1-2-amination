@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 
 using Tao.OpenGl;
 
@@ -27,6 +28,8 @@ namespace MeshReducer
 
         public bool Load(string filename)
         {
+            if (!File.Exists(filename)) { return false; }
+
             Bitmap textureImage = null;
             try
             {

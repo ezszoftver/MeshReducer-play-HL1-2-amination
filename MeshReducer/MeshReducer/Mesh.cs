@@ -144,7 +144,11 @@ namespace MeshReducer
 
             foreach (Material material in materials)
             {
-                count += material.vertices.Count();
+                foreach (Vertex vertex in material.vertices)
+                {
+                    if (vertex == null) continue;
+                    count++;
+                }
             }
 
             return count;
@@ -152,6 +156,9 @@ namespace MeshReducer
 
         public void Draw(bool is_animated)
         {
+            Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL);
+            Gl.glEnable(Gl.GL_TEXTURE_2D);
+
             if (is_animated) // animated model
             {
                 foreach (Material material in materials)
@@ -160,6 +167,8 @@ namespace MeshReducer
                     Gl.glBegin(Gl.GL_TRIANGLES);
                     foreach (Vertex vertex in material.vertices)
                     {
+                        if (vertex == null) { continue; }
+
                         // transform
                         Matrix4x4 transform = Matrix4x4.Multiply(inverse_transforms_reference[vertex.matrices[0].matrix_id], transforms[vertex.matrices[0].matrix_id]) * vertex.matrices[0].weight;
                         for (int i = 1; i < vertex.matrices.Count; i++)
@@ -183,6 +192,58 @@ namespace MeshReducer
                     Gl.glBegin(Gl.GL_TRIANGLES);
                     foreach (Vertex vertex in material.vertices)
                     {
+                        if (vertex == null) { continue; }
+
+                        Vector3 v = vertex.vertex;
+                        Vector2 t = vertex.textcoords;
+                        Gl.glTexCoord2f(t.X, t.Y);
+                        Gl.glVertex3f(v.X, v.Y, v.Z);
+                    }
+                    Gl.glEnd();
+                }
+            }
+        }
+
+        public void DrawWireFrame(bool is_animated)
+        {
+            Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_LINE);
+            Gl.glDisable(Gl.GL_TEXTURE_2D);
+
+            if (is_animated) // animated model
+            {
+                foreach (Material material in materials)
+                {
+                    Gl.glBegin(Gl.GL_TRIANGLES);
+                    Gl.glColor3f(1, 1, 1);
+                    foreach (Vertex vertex in material.vertices)
+                    {
+                        if (vertex == null) { continue; }
+
+                        // transform
+                        Matrix4x4 transform = Matrix4x4.Multiply(inverse_transforms_reference[vertex.matrices[0].matrix_id], transforms[vertex.matrices[0].matrix_id]) * vertex.matrices[0].weight;
+                        for (int i = 1; i < vertex.matrices.Count; i++)
+                        {
+                            transform += Matrix4x4.Multiply(inverse_transforms_reference[vertex.matrices[i].matrix_id], transforms[vertex.matrices[i].matrix_id]) * vertex.matrices[i].weight;
+                        }
+
+                        Vector4 v = Vector4.Transform(new Vector4(vertex.vertex, 1), transform);
+                        Vector2 t = vertex.textcoords;
+                        Gl.glTexCoord2f(t.X, t.Y);
+                        Gl.glVertex3f(v.X, v.Y, v.Z);
+                    }
+                    Gl.glEnd();
+                }
+            }
+            else // static model
+            {
+                foreach (Material material in materials)
+                {
+                    Gl.glBindTexture(Gl.GL_TEXTURE_2D, material.texture.id[0]);
+                    Gl.glBegin(Gl.GL_TRIANGLES);
+                    foreach (Vertex vertex in material.vertices)
+                    {
+                        if (vertex == null) { continue; }
+
                         Vector3 v = vertex.vertex;
                         Vector2 t = vertex.textcoords;
                         Gl.glTexCoord2f(t.X, t.Y);
@@ -205,6 +266,8 @@ namespace MeshReducer
                 
                 foreach (Vertex vertex in material.vertices)
                 {
+                    if (vertex == null) { continue; }
+
                     vertex.matrices.Clear();
                     vertex.matrices = null;
                 }
