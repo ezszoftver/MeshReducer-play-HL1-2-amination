@@ -155,7 +155,7 @@ namespace MeshReducer
 
             Gl.glMatrixMode(Gl.GL_PROJECTION);
             Gl.glLoadIdentity();
-            Glu.gluPerspective(45, size.X / size.Y, radius / 1000.0f, radius * 10.0f);
+            Glu.gluPerspective(45, size.X / size.Y, radius / 1000.0f, radius * 100.0f);
 
             Gl.glMatrixMode(Gl.GL_MODELVIEW);
             Gl.glLoadIdentity();
@@ -792,4 +792,211 @@ namespace MeshReducer
 
         }
     }
+
+    public class Plane
+    {
+        public Vector3 pos;
+        public Vector3 normal;
+
+        public Plane(Vector3 pos, Vector3 normal)
+        {
+            this.pos = new Vector3(pos.X, pos.Y, pos.Z);
+            this.normal = new Vector3(normal.X, normal.Y, normal.Z);
+        }
+    }
+
+    public class Ray
+    {
+        public Vector3 pos;
+        public Vector3 dir;
+
+        public Ray(Ray b)
+        {
+            this.pos = new Vector3(b.pos.X, b.pos.Y, b.pos.Z);
+            this.dir = new Vector3(b.dir.X, b.dir.Y, b.dir.Z);
+        }
+
+        public Ray(Vector3 pos, Vector3 dir)
+        {
+            this.pos = new Vector3(pos.X, pos.Y, pos.Z);
+            this.dir = new Vector3(dir.X, dir.Y, dir.Z);
+        }
+
+        public Vector3 GetPoint(float t)
+        {
+            return (pos + (dir * t));
+        }
+    }
+
+    public class Triangle
+    {
+        public Vector3 A;
+        public Vector3 B;
+        public Vector3 C;
+
+        public Triangle(Triangle b)
+        {
+            this.A = new Vector3(b.A.X, b.A.Y, b.A.Z);
+            this.B = new Vector3(b.B.X, b.B.Y, b.B.Z);
+            this.C = new Vector3(b.C.X, b.C.Y, b.C.Z);
+        }
+
+        public Triangle(Vector3 A, Vector3 B, Vector3 C)
+        {
+            this.A = new Vector3(A.X, A.Y, A.Z);
+            this.B = new Vector3(B.X, B.Y, B.Z);
+            this.C = new Vector3(C.X, C.Y, C.Z);
+        }
+    }
+
+    public class AABB
+    {
+        public Vector3 pos;
+        public Vector3 half_size;
+
+        public AABB(AABB b)
+        {
+            this.pos = new Vector3(b.pos.X, b.pos.Y, b.pos.Z);
+            this.half_size = new Vector3(b.half_size.X, b.half_size.Y, b.half_size.Z);
+        }
+
+        public AABB(Vector3 pos, Vector3 half_size)
+        {
+            this.pos = new Vector3(pos.X, pos.Y, pos.Z);
+            this.half_size = new Vector3(half_size.X, half_size.Y, half_size.Z);
+        }
+    }
+
+    public static class Physics
+    {
+        public static bool IsIntersectPlaneRay(out Vector3 pos, Plane plane, Ray ray)
+        {
+            float denom = Vector3.Dot(ray.dir, plane.normal);
+            if (denom < 0.0001f)
+            {
+                pos = new Vector3(0, 0, 0);
+                return false;
+            }
+
+            float t = Vector3.Dot(plane.pos - ray.pos, plane.normal) / denom;
+            pos = ray.GetPoint(t);
+            return true;
+        }
+
+        public static bool IsIntersectLineAABB(Vector3 line_start, Vector3 line_end, AABB box0)
+        {
+            // init
+            Vector3 translate = box0.pos;
+            Ray ray = new Ray(line_start, Vector3.Normalize(line_end - line_start)); ray.pos -= translate;
+            float line_length = Vector3.Distance(line_start, line_end);
+            AABB box = new AABB(box0); box.pos -= translate;
+            Vector3 pos;
+
+            // in the AABB
+            if (   Math.Abs(ray.pos.X) <= box.pos.X
+                && Math.Abs(ray.pos.Y) <= box.pos.Y
+                && Math.Abs(ray.pos.Z) <= box.pos.Z)
+            {
+                return true;
+            }
+
+            // right
+            Plane plane_right = new Plane(box.pos + new Vector3(box.half_size.X, 0, 0), new Vector3(1, 0, 0));
+            if (IsIntersectPlaneRay(out pos, plane_right, ray))
+            {
+                if (   Math.Abs(pos.Y) <= box.half_size.Y
+                    && Math.Abs(pos.Z) <= box.half_size.Z
+                    && line_length >= Vector3.Distance(ray.pos, pos))
+                {
+                    return true;
+                }
+            }
+
+            // left
+            Plane plane_left = new Plane(box.pos + new Vector3(-box.half_size.X, 0, 0), new Vector3(-1, 0, 0));
+            if (IsIntersectPlaneRay(out pos, plane_left, ray))
+            {
+                if (   Math.Abs(pos.Y) <= box.half_size.Y
+                    && Math.Abs(pos.Z) <= box.half_size.Z
+                    && line_length >= Vector3.Distance(ray.pos, pos))
+                {
+                    return true;
+                }
+            }
+
+            // top
+            Plane plane_top = new Plane(box.pos + new Vector3(0, box.half_size.Y, 0), new Vector3(0, 1, 0));
+            if (IsIntersectPlaneRay(out pos, plane_top, ray))
+            {
+                if (   Math.Abs(pos.X) <= box.half_size.X
+                    && Math.Abs(pos.Z) <= box.half_size.Z
+                    && line_length >= Vector3.Distance(ray.pos, pos))
+                {
+                    return true;
+                }
+            }
+
+            // bottom
+            Plane plane_bottom = new Plane(box.pos + new Vector3(0,-box.half_size.Y, 0), new Vector3(0,-1, 0));
+            if (IsIntersectPlaneRay(out pos, plane_bottom, ray))
+            {
+                if (   Math.Abs(pos.X) <= box.half_size.X
+                    && Math.Abs(pos.Z) <= box.half_size.Z
+                    && line_length >= Vector3.Distance(ray.pos, pos))
+                {
+                    return true;
+                }
+            }
+
+            // front
+            Plane plane_front = new Plane(box.pos + new Vector3(0, 0, box.half_size.Z), new Vector3(0, 0, 1));
+            if (IsIntersectPlaneRay(out pos, plane_front, ray))
+            {
+                if (   Math.Abs(pos.X) <= box.half_size.X
+                    && Math.Abs(pos.Y) <= box.half_size.Y
+                    && line_length >= Vector3.Distance(ray.pos, pos))
+                {
+                    return true;
+                }
+            }
+
+            // back
+            Plane plane_back = new Plane(box.pos + new Vector3(0, 0,-box.half_size.Z), new Vector3(0, 0,-1));
+            if (IsIntersectPlaneRay(out pos, plane_back, ray))
+            {
+                if (   Math.Abs(pos.X) <= box.half_size.X
+                    && Math.Abs(pos.Y) <= box.half_size.Y
+                    && line_length >= Vector3.Distance(ray.pos, pos))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static bool IsIntersectTriangleAABB(Triangle tri, AABB box)
+        {
+            // line 1
+            if (IsIntersectLineAABB(tri.A, tri.B, box))
+            {
+                return true;
+            }
+
+            // line 2
+            if (IsIntersectLineAABB(tri.B, tri.C, box))
+            {
+                return true;
+            }
+
+            // line 3
+            if (IsIntersectLineAABB(tri.C, tri.A, box))
+            {
+                return true;
+            }
+
+            return false;
+        }
+    }
+    
 }
