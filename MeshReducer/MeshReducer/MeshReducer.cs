@@ -154,40 +154,43 @@ namespace MeshReducer
         end_textcoords:
 
             // vertices
-            for (int v = 0; v < new_material.vertices.Count(); v += 3)
+            foreach (Mesh.Material material in mesh.materials)
             {
-
-                if (new_material.vertices[v + 0] == null
-                    || new_material.vertices[v + 1] == null
-                    || new_material.vertices[v + 2] == null)
+                for (int v = 0; v < material.vertices.Count(); v += 3)
                 {
-                    continue;
-                }
 
-                VA = new_material.vertices[v + 0].vertex;
-                VB = new_material.vertices[v + 1].vertex;
-                VC = new_material.vertices[v + 2].vertex;
-                TA = new_material.vertices[v + 0].textcoords;
-                TB = new_material.vertices[v + 1].textcoords;
-                TC = new_material.vertices[v + 2].textcoords;
+                    if (material.vertices[v + 0] == null
+                        || material.vertices[v + 1] == null
+                        || material.vertices[v + 2] == null)
+                    {
+                        continue;
+                    }
 
-                int count = NumEdgePointsInTriangle(edge, VA, VB, VC, out hit_a, out hit_b, out hit_c);
-                if (count > 0)
-                {
-                    if (hit_a)
+                    VA = material.vertices[v + 0].vertex;
+                    VB = material.vertices[v + 1].vertex;
+                    VC = material.vertices[v + 2].vertex;
+                    TA = material.vertices[v + 0].textcoords;
+                    TB = material.vertices[v + 1].textcoords;
+                    TC = material.vertices[v + 2].textcoords;
+
+                    int count = NumEdgePointsInTriangle(edge, VA, VB, VC, out hit_a, out hit_b, out hit_c);
+                    if (count > 0)
                     {
-                        new_material.vertices[v + 0].vertex = new_vertex;
-                        if (count >= 2) new_material.vertices[v + 0].textcoords = new_textcoords;
-                    }
-                    if (hit_b)
-                    {
-                        new_material.vertices[v + 1].vertex = new_vertex;
-                        if (count >= 2) new_material.vertices[v + 1].textcoords = new_textcoords;
-                    }
-                    if (hit_c)
-                    {
-                        new_material.vertices[v + 2].vertex = new_vertex;
-                        if (count >= 2) new_material.vertices[v + 2].textcoords = new_textcoords;
+                        if (hit_a)
+                        {
+                            material.vertices[v + 0].vertex = new_vertex;
+                            if (count >= 2 && material == new_material) material.vertices[v + 0].textcoords = new_textcoords;
+                        }
+                        if (hit_b)
+                        {
+                            material.vertices[v + 1].vertex = new_vertex;
+                            if (count >= 2 && material == new_material) material.vertices[v + 1].textcoords = new_textcoords;
+                        }
+                        if (hit_c)
+                        {
+                            material.vertices[v + 2].vertex = new_vertex;
+                            if (count >= 2 && material == new_material) material.vertices[v + 2].textcoords = new_textcoords;
+                        }
                     }
                 }
             }
