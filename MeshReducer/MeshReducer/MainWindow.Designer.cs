@@ -51,6 +51,9 @@
             this.button4 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.tabOptions = new System.Windows.Forms.TabPage();
+            this.label1 = new System.Windows.Forms.Label();
+            this.button_draw_type = new System.Windows.Forms.Button();
+            this.label_percent = new System.Windows.Forms.Label();
             this.label_vertices = new System.Windows.Forms.Label();
             this.groupBox_options_reduce = new System.Windows.Forms.GroupBox();
             this.button_calc = new System.Windows.Forms.Button();
@@ -64,9 +67,8 @@
             this.label3 = new System.Windows.Forms.Label();
             this.trackBar_rotate_x = new System.Windows.Forms.TrackBar();
             this.label2 = new System.Windows.Forms.Label();
-            this.label_percent = new System.Windows.Forms.Label();
-            this.button_draw_type = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
+            this.textBox_obj_filename = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabOBJ.SuspendLayout();
@@ -125,6 +127,8 @@
             // 
             // tabOBJ
             // 
+            this.tabOBJ.Controls.Add(this.label5);
+            this.tabOBJ.Controls.Add(this.textBox_obj_filename);
             this.tabOBJ.Controls.Add(this.label_save_obj);
             this.tabOBJ.Controls.Add(this.progressBar_save_obj);
             this.tabOBJ.Controls.Add(this.label_load_obj);
@@ -138,11 +142,12 @@
             this.tabOBJ.TabIndex = 0;
             this.tabOBJ.Text = "OBJ File";
             this.tabOBJ.UseVisualStyleBackColor = true;
+            this.tabOBJ.Click += new System.EventHandler(this.tabOBJ_Click);
             // 
             // label_save_obj
             // 
             this.label_save_obj.AutoSize = true;
-            this.label_save_obj.Location = new System.Drawing.Point(415, 48);
+            this.label_save_obj.Location = new System.Drawing.Point(495, 48);
             this.label_save_obj.Name = "label_save_obj";
             this.label_save_obj.Size = new System.Drawing.Size(24, 13);
             this.label_save_obj.TabIndex = 5;
@@ -150,9 +155,9 @@
             // 
             // progressBar_save_obj
             // 
-            this.progressBar_save_obj.Location = new System.Drawing.Point(103, 43);
+            this.progressBar_save_obj.Location = new System.Drawing.Point(284, 43);
             this.progressBar_save_obj.Name = "progressBar_save_obj";
-            this.progressBar_save_obj.Size = new System.Drawing.Size(643, 23);
+            this.progressBar_save_obj.Size = new System.Drawing.Size(462, 23);
             this.progressBar_save_obj.TabIndex = 4;
             // 
             // label_load_obj
@@ -173,7 +178,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(9, 43);
+            this.button2.Location = new System.Drawing.Point(190, 43);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(88, 23);
             this.button2.TabIndex = 1;
@@ -300,6 +305,38 @@
             this.tabOptions.TabIndex = 2;
             this.tabOptions.Text = "Options";
             this.tabOptions.UseVisualStyleBackColor = true;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.BackColor = System.Drawing.Color.Transparent;
+            this.label1.Location = new System.Drawing.Point(163, 12);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(79, 13);
+            this.label1.TabIndex = 7;
+            this.label1.Text = "Drawing Mode:";
+            this.label1.Click += new System.EventHandler(this.label1_Click);
+            // 
+            // button_draw_type
+            // 
+            this.button_draw_type.Location = new System.Drawing.Point(248, 6);
+            this.button_draw_type.Name = "button_draw_type";
+            this.button_draw_type.Size = new System.Drawing.Size(159, 23);
+            this.button_draw_type.TabIndex = 6;
+            this.button_draw_type.Text = "Texture and Wireframe";
+            this.button_draw_type.UseVisualStyleBackColor = true;
+            this.button_draw_type.Click += new System.EventHandler(this.button_draw_type_Click);
+            // 
+            // label_percent
+            // 
+            this.label_percent.AutoSize = true;
+            this.label_percent.BackColor = System.Drawing.Color.Transparent;
+            this.label_percent.Location = new System.Drawing.Point(163, 44);
+            this.label_percent.Name = "label_percent";
+            this.label_percent.Size = new System.Drawing.Size(79, 13);
+            this.label_percent.TabIndex = 5;
+            this.label_percent.Text = "Percent: 100 %";
+            this.label_percent.Click += new System.EventHandler(this.label5_Click_1);
             // 
             // label_vertices
             // 
@@ -436,43 +473,31 @@
             this.label2.TabIndex = 0;
             this.label2.Text = "X Axis";
             // 
-            // label_percent
+            // textBox_obj_filename
             // 
-            this.label_percent.AutoSize = true;
-            this.label_percent.BackColor = System.Drawing.Color.Transparent;
-            this.label_percent.Location = new System.Drawing.Point(163, 44);
-            this.label_percent.Name = "label_percent";
-            this.label_percent.Size = new System.Drawing.Size(79, 13);
-            this.label_percent.TabIndex = 5;
-            this.label_percent.Text = "Percent: 100 %";
-            this.label_percent.Click += new System.EventHandler(this.label5_Click_1);
+            this.textBox_obj_filename.Location = new System.Drawing.Point(6, 45);
+            this.textBox_obj_filename.Name = "textBox_obj_filename";
+            this.textBox_obj_filename.Size = new System.Drawing.Size(134, 20);
+            this.textBox_obj_filename.TabIndex = 6;
+            this.textBox_obj_filename.Text = "LOD_1";
+            this.textBox_obj_filename.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textBox_obj_filename.TextChanged += new System.EventHandler(this.textBox_obj_filename_TextChanged);
             // 
-            // button_draw_type
+            // label5
             // 
-            this.button_draw_type.Location = new System.Drawing.Point(248, 6);
-            this.button_draw_type.Name = "button_draw_type";
-            this.button_draw_type.Size = new System.Drawing.Size(159, 23);
-            this.button_draw_type.TabIndex = 6;
-            this.button_draw_type.Text = "Texture and Wireframe";
-            this.button_draw_type.UseVisualStyleBackColor = true;
-            this.button_draw_type.Click += new System.EventHandler(this.button_draw_type_Click);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.BackColor = System.Drawing.Color.Transparent;
-            this.label1.Location = new System.Drawing.Point(163, 12);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(79, 13);
-            this.label1.TabIndex = 7;
-            this.label1.Text = "Drawing Mode:";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
+            this.label5.AutoSize = true;
+            this.label5.BackColor = System.Drawing.Color.Transparent;
+            this.label5.Location = new System.Drawing.Point(140, 49);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(30, 13);
+            this.label5.TabIndex = 8;
+            this.label5.Text = ".OBJ";
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 921);
+            this.ClientSize = new System.Drawing.Size(784, 922);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
@@ -551,6 +576,8 @@
         private System.Windows.Forms.Label label_percent;
         private System.Windows.Forms.Button button_draw_type;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox textBox_obj_filename;
+        private System.Windows.Forms.Label label5;
     }
 }
 

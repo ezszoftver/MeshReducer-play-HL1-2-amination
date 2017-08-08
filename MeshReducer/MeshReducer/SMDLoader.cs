@@ -68,70 +68,17 @@ namespace MeshReducer
         List<Animation> animations;
 
         public Skeleton reference_skeleton;
-        //public Matrix4x4[] transform_reference;
-        //public Matrix4x4[] inverse_transform_reference;
         Skeleton current_skeleton;
-        /*public Matrix4x4[] transform;
-
-        public class MatrixIdAndWeight
-        {
-            public MatrixIdAndWeight(int matrix_id, float weight)
-            {
-                this.weight = weight;
-                this.matrix_id = matrix_id;
-            }
-
-            public int matrix_id;
-            public float weight;
-        }
-
-        public class Vertex
-        {
-            public Vertex(Vector3 vertex, Vector2 textcoords)
-            {
-                this.vertex = vertex;
-                this.textcoords = textcoords;
-            }
-
-            public void AddMatrix(int matrix_id, float weight)
-            {
-                matrices.Add(new MatrixIdAndWeight(matrix_id, weight));
-            }
-
-            public Vector3 vertex;
-            public Vector2 textcoords;
-            public List<MatrixIdAndWeight> matrices = new List<MatrixIdAndWeight>();
-        }
-
-        public class Material
-        {
-            public string texture_name;
-            public Texture texture;
-
-            public List<Vertex> vertices;
-
-            public Material(string texture_name)
-            {
-                vertices = new List<Vertex>();
-                this.texture_name = texture_name;
-                texture = new Texture();
-            }
-        }
-        public List<Material> materials;*/
 
         private Dictionary<string, int> material_to_id;
-        //public Vector3 min, max;
 
         public SMDLoader()
         {
             nodes = new List<Node>();
             animations = new List<Animation>();
-            //materials = new List<Material>();
             material_to_id = new Dictionary<string, int>();
             reference_skeleton = new Skeleton();
             current_skeleton = new Skeleton();
-            //min = new Vector3(0, 0, 0);
-            //max = new Vector3(0, 0, 0);
         }
 
         public bool LoadReference(string directory, string filename, Mesh mesh)

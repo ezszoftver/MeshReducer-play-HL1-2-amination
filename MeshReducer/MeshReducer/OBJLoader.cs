@@ -71,6 +71,7 @@ namespace MeshReducer
             mesh.min = new Vector3(+1000000.0f, +1000000.0f, +1000000.0f);
             mesh.max = new Vector3(-1000000.0f, -1000000.0f, -1000000.0f);
             UInt32 material_id = 0;
+            string mtllib = "";
 
             foreach (string line in lines) {
                 string[] words = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -100,6 +101,7 @@ namespace MeshReducer
                             break;
                         }
                     case ("mtllib"): {
+                            mtllib = words[1];
                             string[] mtl_lines = File.ReadAllText(directory + @"\" + words[1]).Split(new char[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
 
                             string material = "";
@@ -201,6 +203,7 @@ namespace MeshReducer
 
                 mesh.materials.Add(mat);
             }
+            mesh.mtllib = mtllib;
 
             return true;
         }

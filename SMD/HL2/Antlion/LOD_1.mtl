@@ -1,0 +1,6 @@
+newmtl material_0
+map_Kd bodyside.bmp
+
+newmtl material_1
+map_Kd legsside.bmp
+

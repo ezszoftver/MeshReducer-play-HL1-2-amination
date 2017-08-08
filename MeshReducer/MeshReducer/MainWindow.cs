@@ -35,6 +35,7 @@ namespace MeshReducer
         private OBJLoader obj;
         private SMDLoader smd;
         private float time;
+        private string directory;
 
         Vector3 center;
         float radius;
@@ -52,6 +53,7 @@ namespace MeshReducer
             center = new Vector3(0,0,0);
             radius = 1.0f;
             camera = new Camera();
+            directory = "";
         }
         
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -73,7 +75,7 @@ namespace MeshReducer
                 progressBar_load_obj.Width = tabControl1.Width - 120;
                 label_load_obj.Location = new Point(progressBar_load_obj.Location.X + ((progressBar_load_obj.Width - label_load_obj.Width) / 2), progressBar_load_obj.Location.Y + ((progressBar_load_obj.Height - label_load_obj.Height) / 2));
                 // save
-                progressBar_save_obj.Width = tabControl1.Width - 120;
+                progressBar_save_obj.Width = tabControl1.Width - 300;
                 label_save_obj.Location = new Point(progressBar_save_obj.Location.X + ((progressBar_save_obj.Width - label_save_obj.Width) / 2), progressBar_save_obj.Location.Y + ((progressBar_save_obj.Height - label_save_obj.Height) / 2));
             }
 
@@ -323,7 +325,10 @@ namespace MeshReducer
         private bool DeleteOldAndCreateNew()
         {
             progressBar_load_obj.Value = 0;
-            label_load_obj.Text = "0 %";
+            label_load_obj.Text = "  0 %";
+
+            progressBar_save_obj.Value = 0;
+            label_save_obj.Text = "  0 %";
 
             // Mesh
             if (mesh != null)
@@ -403,7 +408,7 @@ namespace MeshReducer
             
             string fullpath = theDialog.FileName;
             string filename = theDialog.SafeFileName;
-            string directory = Path.GetDirectoryName(fullpath);
+            directory = Path.GetDirectoryName(fullpath);
             string extension = Path.GetExtension(fullpath).ToLower();
 
             if (extension != ".obj") {
@@ -474,7 +479,29 @@ namespace MeshReducer
 
         private void button2_Click(object sender, EventArgs e)
         {
+            string filename = textBox_obj_filename.Text;
+            if (mesh != null && mesh.is_loaded && directory.Length > 0 && filename.Length > 0)
+            {
+                progressBar_save_obj.Maximum = 100;
+                progressBar_save_obj.Value = 0;
+                progressBar_save_obj.Update();
 
+                label_save_obj.Text = "  0 %";
+                label_save_obj.Update();
+
+                MeshToFile file = new MeshToFile();
+                file.SaveToFile(mesh, progressBar_save_obj, label_save_obj, MeshToFile.SaveFileType.OBJ, directory, filename);
+                file.Release();
+                file = null;
+                System.GC.Collect();
+
+                progressBar_save_obj.Maximum = 100;
+                progressBar_save_obj.Value = 100;
+                progressBar_save_obj.Update();
+
+                label_save_obj.Text = "100 %";
+                label_save_obj.Update();
+            }
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -522,48 +549,48 @@ namespace MeshReducer
         public bool PreFilterMessage(ref Message m)
         {
             // up
-            if (m.Msg == WM_KEYDOWN && (Keys)m.WParam.ToInt32() == Keys.W)
+            if (m.Msg == WM_KEYDOWN && (Keys)m.WParam.ToInt32() == Keys.Up)
             {
                 key_pressed_up = true;
                 return true;
             }
-            if (m.Msg == WM_KEYUP && (Keys)m.WParam.ToInt32() == Keys.W)
+            if (m.Msg == WM_KEYUP && (Keys)m.WParam.ToInt32() == Keys.Up)
             {
                 key_pressed_up = false;
                 return true;
             }
 
             // down
-            if (m.Msg == WM_KEYDOWN && (Keys)m.WParam.ToInt32() == Keys.S)
+            if (m.Msg == WM_KEYDOWN && (Keys)m.WParam.ToInt32() == Keys.Down)
             {
                 key_pressed_down = true;
                 return true;
             }
-            if (m.Msg == WM_KEYUP && (Keys)m.WParam.ToInt32() == Keys.S)
+            if (m.Msg == WM_KEYUP && (Keys)m.WParam.ToInt32() == Keys.Down)
             {
                 key_pressed_down = false;
                 return true;
             }
 
             // right
-            if (m.Msg == WM_KEYDOWN && (Keys)m.WParam.ToInt32() == Keys.D)
+            if (m.Msg == WM_KEYDOWN && (Keys)m.WParam.ToInt32() == Keys.Right)
             {
                 key_pressed_right = true;
                 return true;
             }
-            if (m.Msg == WM_KEYUP && (Keys)m.WParam.ToInt32() == Keys.D)
+            if (m.Msg == WM_KEYUP && (Keys)m.WParam.ToInt32() == Keys.Right)
             {
                 key_pressed_right = false;
                 return true;
             }
 
             // left
-            if (m.Msg == WM_KEYDOWN && (Keys)m.WParam.ToInt32() == Keys.A)
+            if (m.Msg == WM_KEYDOWN && (Keys)m.WParam.ToInt32() == Keys.Left)
             {
                 key_pressed_left = true;
                 return true;
             }
-            if (m.Msg == WM_KEYUP && (Keys)m.WParam.ToInt32() == Keys.A)
+            if (m.Msg == WM_KEYUP && (Keys)m.WParam.ToInt32() == Keys.Left)
             {
                 key_pressed_left = false;
                 return true;
@@ -610,7 +637,7 @@ namespace MeshReducer
 
             string fullpath = theDialog.FileName;
             string filename = theDialog.SafeFileName;
-            string directory = Path.GetDirectoryName(fullpath);
+            directory = Path.GetDirectoryName(fullpath);
             string extension = Path.GetExtension(fullpath).ToLower();
 
             if (extension != ".smd")
@@ -670,7 +697,7 @@ namespace MeshReducer
 
             string fullpath = theDialog.FileName;
             string filename = theDialog.SafeFileName;
-            string directory = Path.GetDirectoryName(fullpath);
+            directory = Path.GetDirectoryName(fullpath);
             string extension = Path.GetExtension(fullpath).ToLower();
 
             if (extension != ".smd")
@@ -791,332 +818,40 @@ namespace MeshReducer
         {
 
         }
-    }
 
-    public class Plane
-    {
-        public Vector3 pos;
-        public Vector3 normal;
-
-        public Plane(Vector3 pos, Vector3 normal)
+        private void tabOBJ_Click(object sender, EventArgs e)
         {
-            this.pos = new Vector3(pos.X, pos.Y, pos.Z);
-            this.normal = new Vector3(normal.X, normal.Y, normal.Z);
-        }
-    }
 
-    public class Ray
-    {
-        public Vector3 pos;
-        public Vector3 dir;
-
-        public Ray(Ray b)
-        {
-            this.pos = new Vector3(b.pos.X, b.pos.Y, b.pos.Z);
-            this.dir = new Vector3(b.dir.X, b.dir.Y, b.dir.Z);
         }
 
-        public Ray(Vector3 pos, Vector3 dir)
+        private void textBox_obj_filename_TextChanged(object sender, EventArgs e)
         {
-            this.pos = new Vector3(pos.X, pos.Y, pos.Z);
-            this.dir = new Vector3(dir.X, dir.Y, dir.Z);
-        }
+            string good_characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_.0123456789";
 
-        public Vector3 GetPoint(float t)
-        {
-            return (pos + (dir * t));
-        }
-    }
-
-    public class Triangle
-    {
-        public Vector3 A;
-        public Vector3 B;
-        public Vector3 C;
-
-        public Triangle(Triangle b)
-        {
-            this.A = new Vector3(b.A.X, b.A.Y, b.A.Z);
-            this.B = new Vector3(b.B.X, b.B.Y, b.B.Z);
-            this.C = new Vector3(b.C.X, b.C.Y, b.C.Z);
-        }
-
-        public Triangle(Vector3 A, Vector3 B, Vector3 C)
-        {
-            this.A = new Vector3(A.X, A.Y, A.Z);
-            this.B = new Vector3(B.X, B.Y, B.Z);
-            this.C = new Vector3(C.X, C.Y, C.Z);
-        }
-
-        public Plane GetPlane()
-        {
-            Plane plane = new Plane(A, Vector3.Normalize(Vector3.Cross(B - A, C - A)));
-            return plane;
-        }
-
-        public Vector3 GetNormal()
-        {
-            Vector3 N = Vector3.Normalize(Vector3.Cross(B - A, C - A));
-            return N;
-        }
-
-        public bool IsPointInTriangle(Vector3 P)
-        {
-            Vector3 N = GetNormal();
-
-            if (   Vector3.Dot(Vector3.Cross(B - A, P - A), N) >= 0.0f
-                && Vector3.Dot(Vector3.Cross(C - B, P - B), N) >= 0.0f
-                && Vector3.Dot(Vector3.Cross(A - C, P - C), N) >= 0.0f) { return true; }
-
-            if (   Vector3.Dot(Vector3.Cross(B - A, P - A), N) <= 0.0f
-                && Vector3.Dot(Vector3.Cross(C - B, P - B), N) <= 0.0f
-                && Vector3.Dot(Vector3.Cross(A - C, P - C), N) <= 0.0f) { return true; }
-
-            return false;
-        }
-    }
-
-    public class AABB
-    {
-        public Vector3 pos;
-        public Vector3 half_size;
-
-        public AABB(AABB b)
-        {
-            this.pos = new Vector3(b.pos.X, b.pos.Y, b.pos.Z);
-            this.half_size = new Vector3(b.half_size.X, b.half_size.Y, b.half_size.Z);
-        }
-
-        public AABB(Vector3 pos, Vector3 half_size)
-        {
-            this.pos = new Vector3(pos.X, pos.Y, pos.Z);
-            this.half_size = new Vector3(half_size.X, half_size.Y, half_size.Z);
-        }
-    }
-
-    public static class Physics
-    {
-        public static bool IsIntersectPlaneRay(out Vector3 pos, Plane plane, Ray ray)
-        {
-            float denom = Vector3.Dot(ray.dir, plane.normal);
-            if (denom < 0.0001f)
+            string old_filename = textBox_obj_filename.Text;
+            string new_filename = "";
+            bool is_ok = true;
+            for (int i = 0; i < old_filename.Length; i++)
             {
-                pos = new Vector3(0, 0, 0);
-                return false;
-            }
+                char ch = old_filename[i];
 
-            float t = Vector3.Dot(plane.pos - ray.pos, plane.normal) / denom;
-            pos = ray.GetPoint(t);
-            return true;
-        }
-
-        public static bool IsIntersectLineTriangle(Vector3 line_start, Vector3 line_end, Triangle tri)
-        {
-            Ray ray = new Ray(line_start, Vector3.Normalize(line_end - line_start));
-            Vector3 point;
-            if (!IsIntersectPlaneRay(out point, tri.GetPlane(), ray)) { return false; }
-
-            if (Vector3.Distance(line_start, line_end) < Vector3.Distance(line_start, point)) { return false; }
-
-            return tri.IsPointInTriangle(point);
-        }
-
-        public static bool IsIntersectLineAABB(Vector3 line_start, Vector3 line_end, AABB box0)
-        {
-            // init
-            Vector3 translate = box0.pos;
-            Ray ray = new Ray(line_start, Vector3.Normalize(line_end - line_start)); ray.pos -= translate;
-            float line_length = Vector3.Distance(line_start, line_end);
-            AABB box = new AABB(box0); box.pos -= translate;
-            Vector3 pos;
-
-            // in the AABB
-            if (   Math.Abs(ray.pos.X) <= box.pos.X
-                && Math.Abs(ray.pos.Y) <= box.pos.Y
-                && Math.Abs(ray.pos.Z) <= box.pos.Z)
-            {
-                return true;
-            }
-
-            // right
-            Plane plane_right = new Plane(box.pos + new Vector3(box.half_size.X, 0, 0), new Vector3(1, 0, 0));
-            if (IsIntersectPlaneRay(out pos, plane_right, ray))
-            {
-                if (   Math.Abs(pos.Y) <= box.half_size.Y
-                    && Math.Abs(pos.Z) <= box.half_size.Z
-                    && line_length >= Vector3.Distance(ray.pos, pos))
+                if (good_characters.Contains(ch))
                 {
-                    return true;
+                    new_filename += ch;
+                }
+                else
+                {
+                    is_ok = false;
                 }
             }
+            textBox_obj_filename.Text = new_filename;
 
-            // left
-            Plane plane_left = new Plane(box.pos + new Vector3(-box.half_size.X, 0, 0), new Vector3(-1, 0, 0));
-            if (IsIntersectPlaneRay(out pos, plane_left, ray))
+            if (false == is_ok)
             {
-                if (   Math.Abs(pos.Y) <= box.half_size.Y
-                    && Math.Abs(pos.Z) <= box.half_size.Z
-                    && line_length >= Vector3.Distance(ray.pos, pos))
-                {
-                    return true;
-                }
+                textBox_obj_filename.SelectionStart = textBox_obj_filename.Text.Length;
+                textBox_obj_filename.SelectionLength = 0;
             }
-
-            // top
-            Plane plane_top = new Plane(box.pos + new Vector3(0, box.half_size.Y, 0), new Vector3(0, 1, 0));
-            if (IsIntersectPlaneRay(out pos, plane_top, ray))
-            {
-                if (   Math.Abs(pos.X) <= box.half_size.X
-                    && Math.Abs(pos.Z) <= box.half_size.Z
-                    && line_length >= Vector3.Distance(ray.pos, pos))
-                {
-                    return true;
-                }
-            }
-
-            // bottom
-            Plane plane_bottom = new Plane(box.pos + new Vector3(0,-box.half_size.Y, 0), new Vector3(0,-1, 0));
-            if (IsIntersectPlaneRay(out pos, plane_bottom, ray))
-            {
-                if (   Math.Abs(pos.X) <= box.half_size.X
-                    && Math.Abs(pos.Z) <= box.half_size.Z
-                    && line_length >= Vector3.Distance(ray.pos, pos))
-                {
-                    return true;
-                }
-            }
-
-            // front
-            Plane plane_front = new Plane(box.pos + new Vector3(0, 0, box.half_size.Z), new Vector3(0, 0, 1));
-            if (IsIntersectPlaneRay(out pos, plane_front, ray))
-            {
-                if (   Math.Abs(pos.X) <= box.half_size.X
-                    && Math.Abs(pos.Y) <= box.half_size.Y
-                    && line_length >= Vector3.Distance(ray.pos, pos))
-                {
-                    return true;
-                }
-            }
-
-            // back
-            Plane plane_back = new Plane(box.pos + new Vector3(0, 0,-box.half_size.Z), new Vector3(0, 0,-1));
-            if (IsIntersectPlaneRay(out pos, plane_back, ray))
-            {
-                if (   Math.Abs(pos.X) <= box.half_size.X
-                    && Math.Abs(pos.Y) <= box.half_size.Y
-                    && line_length >= Vector3.Distance(ray.pos, pos))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public static bool IsIntersectTriangleAABB(Triangle tri0, AABB box0)
-        {
-            // line 1
-            if (IsIntersectLineAABB(tri0.A, tri0.B, box0))
-            {
-                return true;
-            }
-
-            // line 2
-            if (IsIntersectLineAABB(tri0.B, tri0.C, box0))
-            {
-                return true;
-            }
-
-            // line 3
-            if (IsIntersectLineAABB(tri0.C, tri0.A, box0))
-            {
-                return true;
-            }
-
-            // box (12 lines)
-            // init
-            Vector3 translate = box0.pos;
-            AABB box = new AABB(box0); box.pos -= translate;
-            Triangle tri = new Triangle(tri0); tri.A -= translate; tri.B -= translate; tri.C -= translate;
-            // X
-            // 1
-            {
-                Vector3 line_start = new Vector3(-box.half_size.X, box.half_size.Y, box.half_size.Z);
-                Vector3 line_end   = new Vector3( box.half_size.X, box.half_size.Y, box.half_size.Z);
-                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
-            }
-            // 2
-            {
-                Vector3 line_start = new Vector3(-box.half_size.X, box.half_size.Y,-box.half_size.Z);
-                Vector3 line_end   = new Vector3( box.half_size.X, box.half_size.Y,-box.half_size.Z);
-                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
-            }
-            // 3
-            {
-                Vector3 line_start = new Vector3(-box.half_size.X,-box.half_size.Y,-box.half_size.Z);
-                Vector3 line_end   = new Vector3( box.half_size.X,-box.half_size.Y,-box.half_size.Z);
-                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
-            }
-            // 4
-            {
-                Vector3 line_start = new Vector3(-box.half_size.X,-box.half_size.Y, box.half_size.Z);
-                Vector3 line_end   = new Vector3( box.half_size.X,-box.half_size.Y, box.half_size.Z);
-                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
-            }
-
-            // Y
-            // 5
-            {
-                Vector3 line_start = new Vector3(-box.half_size.X,-box.half_size.Y, box.half_size.Z);
-                Vector3 line_end   = new Vector3(-box.half_size.X, box.half_size.Y, box.half_size.Z);
-                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
-            }
-            // 6
-            {
-                Vector3 line_start = new Vector3(-box.half_size.X,-box.half_size.Y,-box.half_size.Z);
-                Vector3 line_end   = new Vector3(-box.half_size.X, box.half_size.Y,-box.half_size.Z);
-                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
-            }
-            // 7
-            {
-                Vector3 line_start = new Vector3( box.half_size.X,-box.half_size.Y,-box.half_size.Z);
-                Vector3 line_end   = new Vector3( box.half_size.X, box.half_size.Y,-box.half_size.Z);
-                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
-            }
-            // 8
-            {
-                Vector3 line_start = new Vector3( box.half_size.X,-box.half_size.Y, box.half_size.Z);
-                Vector3 line_end   = new Vector3( box.half_size.X, box.half_size.Y, box.half_size.Z);
-                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
-            }
-
-            // Z
-            // 9
-            {
-                Vector3 line_start = new Vector3(-box.half_size.X,-box.half_size.Y, box.half_size.Z);
-                Vector3 line_end   = new Vector3(-box.half_size.X,-box.half_size.Y,-box.half_size.Z);
-                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
-            }
-            // 10
-            {
-                Vector3 line_start = new Vector3( box.half_size.X,-box.half_size.Y, box.half_size.Z);
-                Vector3 line_end   = new Vector3( box.half_size.X,-box.half_size.Y,-box.half_size.Z);
-                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
-            }
-            // 11
-            {
-                Vector3 line_start = new Vector3( box.half_size.X, box.half_size.Y, box.half_size.Z);
-                Vector3 line_end   = new Vector3( box.half_size.X, box.half_size.Y,-box.half_size.Z);
-                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
-            }
-            // 12
-            {
-                Vector3 line_start = new Vector3(-box.half_size.X, box.half_size.Y, box.half_size.Z);
-                Vector3 line_end   = new Vector3(-box.half_size.X, box.half_size.Y,-box.half_size.Z);
-                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
-            }
-
-            return false;
+            
         }
     }
     

@@ -100,6 +100,7 @@
     </Compile>
     <Compile Include="Mesh.cs" />
     <Compile Include="MeshReducer.cs" />
+    <Compile Include="MeshToFile.cs" />
     <Compile Include="OBJLoader.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

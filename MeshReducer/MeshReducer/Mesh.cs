@@ -74,6 +74,7 @@ namespace MeshReducer
         public List<Material>  materials;
         public Vector3 min, max;
         public bool is_loaded;
+        public string mtllib;
 
         public Mesh()
         {
@@ -83,6 +84,7 @@ namespace MeshReducer
             materials = new List<Material>();
             min = new Vector3(0, 0, 0);
             max = new Vector3(0, 0, 0);
+            mtllib = "";
         }
 
         public Mesh(Mesh b)
