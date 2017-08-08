@@ -847,6 +847,33 @@ namespace MeshReducer
             this.B = new Vector3(B.X, B.Y, B.Z);
             this.C = new Vector3(C.X, C.Y, C.Z);
         }
+
+        public Plane GetPlane()
+        {
+            Plane plane = new Plane(A, Vector3.Normalize(Vector3.Cross(B - A, C - A)));
+            return plane;
+        }
+
+        public Vector3 GetNormal()
+        {
+            Vector3 N = Vector3.Normalize(Vector3.Cross(B - A, C - A));
+            return N;
+        }
+
+        public bool IsPointInTriangle(Vector3 P)
+        {
+            Vector3 N = GetNormal();
+
+            if (   Vector3.Dot(Vector3.Cross(B - A, P - A), N) >= 0.0f
+                && Vector3.Dot(Vector3.Cross(C - B, P - B), N) >= 0.0f
+                && Vector3.Dot(Vector3.Cross(A - C, P - C), N) >= 0.0f) { return true; }
+
+            if (   Vector3.Dot(Vector3.Cross(B - A, P - A), N) <= 0.0f
+                && Vector3.Dot(Vector3.Cross(C - B, P - B), N) <= 0.0f
+                && Vector3.Dot(Vector3.Cross(A - C, P - C), N) <= 0.0f) { return true; }
+
+            return false;
+        }
     }
 
     public class AABB
@@ -881,6 +908,17 @@ namespace MeshReducer
             float t = Vector3.Dot(plane.pos - ray.pos, plane.normal) / denom;
             pos = ray.GetPoint(t);
             return true;
+        }
+
+        public static bool IsIntersectLineTriangle(Vector3 line_start, Vector3 line_end, Triangle tri)
+        {
+            Ray ray = new Ray(line_start, Vector3.Normalize(line_end - line_start));
+            Vector3 point;
+            if (!IsIntersectPlaneRay(out point, tri.GetPlane(), ray)) { return false; }
+
+            if (Vector3.Distance(line_start, line_end) < Vector3.Distance(line_start, point)) { return false; }
+
+            return tri.IsPointInTriangle(point);
         }
 
         public static bool IsIntersectLineAABB(Vector3 line_start, Vector3 line_end, AABB box0)
@@ -975,24 +1013,107 @@ namespace MeshReducer
             return false;
         }
 
-        public static bool IsIntersectTriangleAABB(Triangle tri, AABB box)
+        public static bool IsIntersectTriangleAABB(Triangle tri0, AABB box0)
         {
             // line 1
-            if (IsIntersectLineAABB(tri.A, tri.B, box))
+            if (IsIntersectLineAABB(tri0.A, tri0.B, box0))
             {
                 return true;
             }
 
             // line 2
-            if (IsIntersectLineAABB(tri.B, tri.C, box))
+            if (IsIntersectLineAABB(tri0.B, tri0.C, box0))
             {
                 return true;
             }
 
             // line 3
-            if (IsIntersectLineAABB(tri.C, tri.A, box))
+            if (IsIntersectLineAABB(tri0.C, tri0.A, box0))
             {
                 return true;
+            }
+
+            // box (12 lines)
+            // init
+            Vector3 translate = box0.pos;
+            AABB box = new AABB(box0); box.pos -= translate;
+            Triangle tri = new Triangle(tri0); tri.A -= translate; tri.B -= translate; tri.C -= translate;
+            // X
+            // 1
+            {
+                Vector3 line_start = new Vector3(-box.half_size.X, box.half_size.Y, box.half_size.Z);
+                Vector3 line_end   = new Vector3( box.half_size.X, box.half_size.Y, box.half_size.Z);
+                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
+            }
+            // 2
+            {
+                Vector3 line_start = new Vector3(-box.half_size.X, box.half_size.Y,-box.half_size.Z);
+                Vector3 line_end   = new Vector3( box.half_size.X, box.half_size.Y,-box.half_size.Z);
+                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
+            }
+            // 3
+            {
+                Vector3 line_start = new Vector3(-box.half_size.X,-box.half_size.Y,-box.half_size.Z);
+                Vector3 line_end   = new Vector3( box.half_size.X,-box.half_size.Y,-box.half_size.Z);
+                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
+            }
+            // 4
+            {
+                Vector3 line_start = new Vector3(-box.half_size.X,-box.half_size.Y, box.half_size.Z);
+                Vector3 line_end   = new Vector3( box.half_size.X,-box.half_size.Y, box.half_size.Z);
+                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
+            }
+
+            // Y
+            // 5
+            {
+                Vector3 line_start = new Vector3(-box.half_size.X,-box.half_size.Y, box.half_size.Z);
+                Vector3 line_end   = new Vector3(-box.half_size.X, box.half_size.Y, box.half_size.Z);
+                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
+            }
+            // 6
+            {
+                Vector3 line_start = new Vector3(-box.half_size.X,-box.half_size.Y,-box.half_size.Z);
+                Vector3 line_end   = new Vector3(-box.half_size.X, box.half_size.Y,-box.half_size.Z);
+                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
+            }
+            // 7
+            {
+                Vector3 line_start = new Vector3( box.half_size.X,-box.half_size.Y,-box.half_size.Z);
+                Vector3 line_end   = new Vector3( box.half_size.X, box.half_size.Y,-box.half_size.Z);
+                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
+            }
+            // 8
+            {
+                Vector3 line_start = new Vector3( box.half_size.X,-box.half_size.Y, box.half_size.Z);
+                Vector3 line_end   = new Vector3( box.half_size.X, box.half_size.Y, box.half_size.Z);
+                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
+            }
+
+            // Z
+            // 9
+            {
+                Vector3 line_start = new Vector3(-box.half_size.X,-box.half_size.Y, box.half_size.Z);
+                Vector3 line_end   = new Vector3(-box.half_size.X,-box.half_size.Y,-box.half_size.Z);
+                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
+            }
+            // 10
+            {
+                Vector3 line_start = new Vector3( box.half_size.X,-box.half_size.Y, box.half_size.Z);
+                Vector3 line_end   = new Vector3( box.half_size.X,-box.half_size.Y,-box.half_size.Z);
+                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
+            }
+            // 11
+            {
+                Vector3 line_start = new Vector3( box.half_size.X, box.half_size.Y, box.half_size.Z);
+                Vector3 line_end   = new Vector3( box.half_size.X, box.half_size.Y,-box.half_size.Z);
+                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
+            }
+            // 12
+            {
+                Vector3 line_start = new Vector3(-box.half_size.X, box.half_size.Y, box.half_size.Z);
+                Vector3 line_end   = new Vector3(-box.half_size.X, box.half_size.Y,-box.half_size.Z);
+                if (IsIntersectLineTriangle(line_start, line_end, tri)) { return true; }
             }
 
             return false;
