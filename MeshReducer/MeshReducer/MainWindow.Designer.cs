@@ -35,26 +35,32 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabOBJ = new System.Windows.Forms.TabPage();
-            this.label5 = new System.Windows.Forms.Label();
-            this.textBox_obj_filename = new System.Windows.Forms.TextBox();
+            this.groupBox_obj_save = new System.Windows.Forms.GroupBox();
             this.label_save_obj = new System.Windows.Forms.Label();
             this.progressBar_save_obj = new System.Windows.Forms.ProgressBar();
+            this.button2 = new System.Windows.Forms.Button();
+            this.textBox_obj_filename = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.groupBox_obj_load = new System.Windows.Forms.GroupBox();
             this.label_load_obj = new System.Windows.Forms.Label();
             this.progressBar_load_obj = new System.Windows.Forms.ProgressBar();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.button_load_obj = new System.Windows.Forms.Button();
             this.tabSMD = new System.Windows.Forms.TabPage();
-            this.comboBox_smd_type = new System.Windows.Forms.ComboBox();
-            this.label6 = new System.Windows.Forms.Label();
+            this.groupBox_save_smd = new System.Windows.Forms.GroupBox();
             this.textBox_smd_filename = new System.Windows.Forms.TextBox();
+            this.comboBox_smd_type = new System.Windows.Forms.ComboBox();
             this.label_smd_save = new System.Windows.Forms.Label();
-            this.progressBar_smd_save = new System.Windows.Forms.ProgressBar();
             this.button_smd_save = new System.Windows.Forms.Button();
+            this.label6 = new System.Windows.Forms.Label();
+            this.progressBar_smd_save = new System.Windows.Forms.ProgressBar();
             this.label_smd_speed = new System.Windows.Forms.Label();
-            this.trackBar_animspeed = new System.Windows.Forms.TrackBar();
-            this.comboBox_animations = new System.Windows.Forms.ComboBox();
-            this.button4 = new System.Windows.Forms.Button();
+            this.groupBox_load_smd = new System.Windows.Forms.GroupBox();
+            this.label_load_smd = new System.Windows.Forms.Label();
+            this.progressBar_load_smd = new System.Windows.Forms.ProgressBar();
             this.button3 = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
+            this.comboBox_animations = new System.Windows.Forms.ComboBox();
+            this.trackBar_animspeed = new System.Windows.Forms.TrackBar();
             this.tabOptions = new System.Windows.Forms.TabPage();
             this.label1 = new System.Windows.Forms.Label();
             this.button_draw_type = new System.Windows.Forms.Button();
@@ -72,16 +78,15 @@
             this.label3 = new System.Windows.Forms.Label();
             this.trackBar_rotate_x = new System.Windows.Forms.TrackBar();
             this.label2 = new System.Windows.Forms.Label();
-            this.groupBox_obj_load = new System.Windows.Forms.GroupBox();
-            this.groupBox_obj_save = new System.Windows.Forms.GroupBox();
-            this.groupBox_load_smd = new System.Windows.Forms.GroupBox();
-            this.groupBox_save_smd = new System.Windows.Forms.GroupBox();
-            this.progressBar_load_smd = new System.Windows.Forms.ProgressBar();
-            this.label_load_smd = new System.Windows.Forms.Label();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabOBJ.SuspendLayout();
+            this.groupBox_obj_save.SuspendLayout();
+            this.groupBox_obj_load.SuspendLayout();
             this.tabSMD.SuspendLayout();
+            this.groupBox_save_smd.SuspendLayout();
+            this.groupBox_load_smd.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_animspeed)).BeginInit();
             this.tabOptions.SuspendLayout();
             this.groupBox_options_reduce.SuspendLayout();
@@ -90,10 +95,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_rotate_z)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_rotate_y)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_rotate_x)).BeginInit();
-            this.groupBox_obj_load.SuspendLayout();
-            this.groupBox_obj_save.SuspendLayout();
-            this.groupBox_load_smd.SuspendLayout();
-            this.groupBox_save_smd.SuspendLayout();
             this.SuspendLayout();
             // 
             // timer1
@@ -104,7 +105,8 @@
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem});
+            this.fileToolStripMenuItem,
+            this.aboutToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(784, 24);
@@ -122,7 +124,7 @@
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(92, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -151,25 +153,19 @@
             this.tabOBJ.UseVisualStyleBackColor = true;
             this.tabOBJ.Click += new System.EventHandler(this.tabOBJ_Click);
             // 
-            // label5
+            // groupBox_obj_save
             // 
-            this.label5.AutoSize = true;
-            this.label5.BackColor = System.Drawing.Color.Transparent;
-            this.label5.Location = new System.Drawing.Point(141, 24);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(30, 13);
-            this.label5.TabIndex = 8;
-            this.label5.Text = ".OBJ";
-            // 
-            // textBox_obj_filename
-            // 
-            this.textBox_obj_filename.Location = new System.Drawing.Point(6, 21);
-            this.textBox_obj_filename.Name = "textBox_obj_filename";
-            this.textBox_obj_filename.Size = new System.Drawing.Size(134, 20);
-            this.textBox_obj_filename.TabIndex = 6;
-            this.textBox_obj_filename.Text = "LOD_1";
-            this.textBox_obj_filename.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textBox_obj_filename.TextChanged += new System.EventHandler(this.textBox_obj_filename_TextChanged);
+            this.groupBox_obj_save.Controls.Add(this.label_save_obj);
+            this.groupBox_obj_save.Controls.Add(this.progressBar_save_obj);
+            this.groupBox_obj_save.Controls.Add(this.button2);
+            this.groupBox_obj_save.Controls.Add(this.textBox_obj_filename);
+            this.groupBox_obj_save.Controls.Add(this.label5);
+            this.groupBox_obj_save.Location = new System.Drawing.Point(6, 69);
+            this.groupBox_obj_save.Name = "groupBox_obj_save";
+            this.groupBox_obj_save.Size = new System.Drawing.Size(738, 54);
+            this.groupBox_obj_save.TabIndex = 10;
+            this.groupBox_obj_save.TabStop = false;
+            this.groupBox_obj_save.Text = "Save";
             // 
             // label_save_obj
             // 
@@ -187,6 +183,48 @@
             this.progressBar_save_obj.Size = new System.Drawing.Size(462, 23);
             this.progressBar_save_obj.TabIndex = 4;
             // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(177, 19);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(88, 23);
+            this.button2.TabIndex = 1;
+            this.button2.Text = "Save As";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // textBox_obj_filename
+            // 
+            this.textBox_obj_filename.Location = new System.Drawing.Point(6, 21);
+            this.textBox_obj_filename.Name = "textBox_obj_filename";
+            this.textBox_obj_filename.Size = new System.Drawing.Size(134, 20);
+            this.textBox_obj_filename.TabIndex = 6;
+            this.textBox_obj_filename.Text = "LOD_1";
+            this.textBox_obj_filename.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textBox_obj_filename.TextChanged += new System.EventHandler(this.textBox_obj_filename_TextChanged);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.BackColor = System.Drawing.Color.Transparent;
+            this.label5.Location = new System.Drawing.Point(141, 24);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(30, 13);
+            this.label5.TabIndex = 8;
+            this.label5.Text = ".OBJ";
+            // 
+            // groupBox_obj_load
+            // 
+            this.groupBox_obj_load.Controls.Add(this.label_load_obj);
+            this.groupBox_obj_load.Controls.Add(this.progressBar_load_obj);
+            this.groupBox_obj_load.Controls.Add(this.button_load_obj);
+            this.groupBox_obj_load.Location = new System.Drawing.Point(6, 6);
+            this.groupBox_obj_load.Name = "groupBox_obj_load";
+            this.groupBox_obj_load.Size = new System.Drawing.Size(738, 57);
+            this.groupBox_obj_load.TabIndex = 9;
+            this.groupBox_obj_load.TabStop = false;
+            this.groupBox_obj_load.Text = "Load";
+            // 
             // label_load_obj
             // 
             this.label_load_obj.AutoSize = true;
@@ -203,25 +241,15 @@
             this.progressBar_load_obj.Size = new System.Drawing.Size(630, 23);
             this.progressBar_load_obj.TabIndex = 2;
             // 
-            // button2
+            // button_load_obj
             // 
-            this.button2.Location = new System.Drawing.Point(177, 19);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(88, 23);
-            this.button2.TabIndex = 1;
-            this.button2.Text = "Save As";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(6, 19);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(88, 23);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Load";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button_load_obj.Location = new System.Drawing.Point(6, 19);
+            this.button_load_obj.Name = "button_load_obj";
+            this.button_load_obj.Size = new System.Drawing.Size(88, 23);
+            this.button_load_obj.TabIndex = 0;
+            this.button_load_obj.Text = "Load";
+            this.button_load_obj.UseVisualStyleBackColor = true;
+            this.button_load_obj.Click += new System.EventHandler(this.button1_Click);
             // 
             // tabSMD
             // 
@@ -237,6 +265,30 @@
             this.tabSMD.Text = "SMD File";
             this.tabSMD.UseVisualStyleBackColor = true;
             // 
+            // groupBox_save_smd
+            // 
+            this.groupBox_save_smd.Controls.Add(this.textBox_smd_filename);
+            this.groupBox_save_smd.Controls.Add(this.comboBox_smd_type);
+            this.groupBox_save_smd.Controls.Add(this.label_smd_save);
+            this.groupBox_save_smd.Controls.Add(this.button_smd_save);
+            this.groupBox_save_smd.Controls.Add(this.label6);
+            this.groupBox_save_smd.Controls.Add(this.progressBar_smd_save);
+            this.groupBox_save_smd.Location = new System.Drawing.Point(6, 128);
+            this.groupBox_save_smd.Name = "groupBox_save_smd";
+            this.groupBox_save_smd.Size = new System.Drawing.Size(739, 43);
+            this.groupBox_save_smd.TabIndex = 16;
+            this.groupBox_save_smd.TabStop = false;
+            this.groupBox_save_smd.Text = "Save";
+            // 
+            // textBox_smd_filename
+            // 
+            this.textBox_smd_filename.Location = new System.Drawing.Point(6, 17);
+            this.textBox_smd_filename.Name = "textBox_smd_filename";
+            this.textBox_smd_filename.Size = new System.Drawing.Size(134, 20);
+            this.textBox_smd_filename.TabIndex = 13;
+            this.textBox_smd_filename.Text = "LOD_1";
+            this.textBox_smd_filename.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
             // comboBox_smd_type
             // 
             this.comboBox_smd_type.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -249,26 +301,6 @@
             this.comboBox_smd_type.Size = new System.Drawing.Size(110, 21);
             this.comboBox_smd_type.TabIndex = 15;
             // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.BackColor = System.Drawing.Color.Transparent;
-            this.label6.Location = new System.Drawing.Point(137, 20);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(34, 13);
-            this.label6.TabIndex = 14;
-            this.label6.Text = ".SMD";
-            this.label6.Click += new System.EventHandler(this.label6_Click);
-            // 
-            // textBox_smd_filename
-            // 
-            this.textBox_smd_filename.Location = new System.Drawing.Point(6, 17);
-            this.textBox_smd_filename.Name = "textBox_smd_filename";
-            this.textBox_smd_filename.Size = new System.Drawing.Size(134, 20);
-            this.textBox_smd_filename.TabIndex = 13;
-            this.textBox_smd_filename.Text = "LOD_1";
-            this.textBox_smd_filename.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            // 
             // label_smd_save
             // 
             this.label_smd_save.AutoSize = true;
@@ -278,13 +310,6 @@
             this.label_smd_save.TabIndex = 12;
             this.label_smd_save.Text = "0 %";
             this.label_smd_save.Click += new System.EventHandler(this.label5_Click);
-            // 
-            // progressBar_smd_save
-            // 
-            this.progressBar_smd_save.Location = new System.Drawing.Point(382, 14);
-            this.progressBar_smd_save.Name = "progressBar_smd_save";
-            this.progressBar_smd_save.Size = new System.Drawing.Size(351, 23);
-            this.progressBar_smd_save.TabIndex = 11;
             // 
             // button_smd_save
             // 
@@ -296,6 +321,24 @@
             this.button_smd_save.UseVisualStyleBackColor = true;
             this.button_smd_save.Click += new System.EventHandler(this.button_smd_save_Click);
             // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.BackColor = System.Drawing.Color.Transparent;
+            this.label6.Location = new System.Drawing.Point(137, 20);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(34, 13);
+            this.label6.TabIndex = 14;
+            this.label6.Text = ".SMD";
+            this.label6.Click += new System.EventHandler(this.label6_Click);
+            // 
+            // progressBar_smd_save
+            // 
+            this.progressBar_smd_save.Location = new System.Drawing.Point(382, 14);
+            this.progressBar_smd_save.Name = "progressBar_smd_save";
+            this.progressBar_smd_save.Size = new System.Drawing.Size(351, 23);
+            this.progressBar_smd_save.TabIndex = 11;
+            // 
             // label_smd_speed
             // 
             this.label_smd_speed.AutoSize = true;
@@ -306,25 +349,45 @@
             this.label_smd_speed.Text = "Speed:";
             this.label_smd_speed.Click += new System.EventHandler(this.label_smd_speed_Click);
             // 
-            // trackBar_animspeed
+            // groupBox_load_smd
             // 
-            this.trackBar_animspeed.Location = new System.Drawing.Point(123, 91);
-            this.trackBar_animspeed.Maximum = 100;
-            this.trackBar_animspeed.Name = "trackBar_animspeed";
-            this.trackBar_animspeed.Size = new System.Drawing.Size(616, 45);
-            this.trackBar_animspeed.TabIndex = 8;
-            this.trackBar_animspeed.Value = 30;
-            this.trackBar_animspeed.Scroll += new System.EventHandler(this.trackBar_animspeed_Scroll);
+            this.groupBox_load_smd.Controls.Add(this.label_load_smd);
+            this.groupBox_load_smd.Controls.Add(this.progressBar_load_smd);
+            this.groupBox_load_smd.Controls.Add(this.button3);
+            this.groupBox_load_smd.Controls.Add(this.button4);
+            this.groupBox_load_smd.Controls.Add(this.comboBox_animations);
+            this.groupBox_load_smd.Location = new System.Drawing.Point(6, 6);
+            this.groupBox_load_smd.Name = "groupBox_load_smd";
+            this.groupBox_load_smd.Size = new System.Drawing.Size(739, 81);
+            this.groupBox_load_smd.TabIndex = 2;
+            this.groupBox_load_smd.TabStop = false;
+            this.groupBox_load_smd.Text = "Load";
             // 
-            // comboBox_animations
+            // label_load_smd
             // 
-            this.comboBox_animations.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox_animations.FormattingEnabled = true;
-            this.comboBox_animations.Location = new System.Drawing.Point(117, 50);
-            this.comboBox_animations.Name = "comboBox_animations";
-            this.comboBox_animations.Size = new System.Drawing.Size(213, 21);
-            this.comboBox_animations.TabIndex = 2;
-            this.comboBox_animations.SelectedIndexChanged += new System.EventHandler(this.comboBox_animations_SelectedIndexChanged);
+            this.label_load_smd.AutoSize = true;
+            this.label_load_smd.Location = new System.Drawing.Point(413, 24);
+            this.label_load_smd.Name = "label_load_smd";
+            this.label_load_smd.Size = new System.Drawing.Size(24, 13);
+            this.label_load_smd.TabIndex = 16;
+            this.label_load_smd.Text = "0 %";
+            // 
+            // progressBar_load_smd
+            // 
+            this.progressBar_load_smd.Location = new System.Drawing.Point(117, 19);
+            this.progressBar_load_smd.Name = "progressBar_load_smd";
+            this.progressBar_load_smd.Size = new System.Drawing.Size(616, 23);
+            this.progressBar_load_smd.TabIndex = 16;
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(6, 19);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(105, 23);
+            this.button3.TabIndex = 0;
+            this.button3.Text = "Load Reference";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click_1);
             // 
             // button4
             // 
@@ -336,15 +399,25 @@
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
-            // button3
+            // comboBox_animations
             // 
-            this.button3.Location = new System.Drawing.Point(6, 19);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(105, 23);
-            this.button3.TabIndex = 0;
-            this.button3.Text = "Load Reference";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click_1);
+            this.comboBox_animations.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox_animations.FormattingEnabled = true;
+            this.comboBox_animations.Location = new System.Drawing.Point(117, 50);
+            this.comboBox_animations.Name = "comboBox_animations";
+            this.comboBox_animations.Size = new System.Drawing.Size(213, 21);
+            this.comboBox_animations.TabIndex = 2;
+            this.comboBox_animations.SelectedIndexChanged += new System.EventHandler(this.comboBox_animations_SelectedIndexChanged);
+            // 
+            // trackBar_animspeed
+            // 
+            this.trackBar_animspeed.Location = new System.Drawing.Point(123, 91);
+            this.trackBar_animspeed.Maximum = 100;
+            this.trackBar_animspeed.Name = "trackBar_animspeed";
+            this.trackBar_animspeed.Size = new System.Drawing.Size(616, 45);
+            this.trackBar_animspeed.TabIndex = 8;
+            this.trackBar_animspeed.Value = 30;
+            this.trackBar_animspeed.Scroll += new System.EventHandler(this.trackBar_animspeed_Scroll);
             // 
             // tabOptions
             // 
@@ -529,76 +602,12 @@
             this.label2.TabIndex = 0;
             this.label2.Text = "X Axis";
             // 
-            // groupBox_obj_load
+            // aboutToolStripMenuItem
             // 
-            this.groupBox_obj_load.Controls.Add(this.label_load_obj);
-            this.groupBox_obj_load.Controls.Add(this.progressBar_load_obj);
-            this.groupBox_obj_load.Controls.Add(this.button1);
-            this.groupBox_obj_load.Location = new System.Drawing.Point(6, 6);
-            this.groupBox_obj_load.Name = "groupBox_obj_load";
-            this.groupBox_obj_load.Size = new System.Drawing.Size(738, 57);
-            this.groupBox_obj_load.TabIndex = 9;
-            this.groupBox_obj_load.TabStop = false;
-            this.groupBox_obj_load.Text = "Load";
-            // 
-            // groupBox_obj_save
-            // 
-            this.groupBox_obj_save.Controls.Add(this.label_save_obj);
-            this.groupBox_obj_save.Controls.Add(this.progressBar_save_obj);
-            this.groupBox_obj_save.Controls.Add(this.button2);
-            this.groupBox_obj_save.Controls.Add(this.textBox_obj_filename);
-            this.groupBox_obj_save.Controls.Add(this.label5);
-            this.groupBox_obj_save.Location = new System.Drawing.Point(6, 69);
-            this.groupBox_obj_save.Name = "groupBox_obj_save";
-            this.groupBox_obj_save.Size = new System.Drawing.Size(738, 54);
-            this.groupBox_obj_save.TabIndex = 10;
-            this.groupBox_obj_save.TabStop = false;
-            this.groupBox_obj_save.Text = "Save";
-            // 
-            // groupBox_load_smd
-            // 
-            this.groupBox_load_smd.Controls.Add(this.label_load_smd);
-            this.groupBox_load_smd.Controls.Add(this.progressBar_load_smd);
-            this.groupBox_load_smd.Controls.Add(this.button3);
-            this.groupBox_load_smd.Controls.Add(this.button4);
-            this.groupBox_load_smd.Controls.Add(this.comboBox_animations);
-            this.groupBox_load_smd.Location = new System.Drawing.Point(6, 6);
-            this.groupBox_load_smd.Name = "groupBox_load_smd";
-            this.groupBox_load_smd.Size = new System.Drawing.Size(739, 81);
-            this.groupBox_load_smd.TabIndex = 2;
-            this.groupBox_load_smd.TabStop = false;
-            this.groupBox_load_smd.Text = "Load";
-            // 
-            // groupBox_save_smd
-            // 
-            this.groupBox_save_smd.Controls.Add(this.textBox_smd_filename);
-            this.groupBox_save_smd.Controls.Add(this.comboBox_smd_type);
-            this.groupBox_save_smd.Controls.Add(this.label_smd_save);
-            this.groupBox_save_smd.Controls.Add(this.button_smd_save);
-            this.groupBox_save_smd.Controls.Add(this.label6);
-            this.groupBox_save_smd.Controls.Add(this.progressBar_smd_save);
-            this.groupBox_save_smd.Location = new System.Drawing.Point(6, 128);
-            this.groupBox_save_smd.Name = "groupBox_save_smd";
-            this.groupBox_save_smd.Size = new System.Drawing.Size(739, 43);
-            this.groupBox_save_smd.TabIndex = 16;
-            this.groupBox_save_smd.TabStop = false;
-            this.groupBox_save_smd.Text = "Save";
-            // 
-            // progressBar_load_smd
-            // 
-            this.progressBar_load_smd.Location = new System.Drawing.Point(117, 19);
-            this.progressBar_load_smd.Name = "progressBar_load_smd";
-            this.progressBar_load_smd.Size = new System.Drawing.Size(616, 23);
-            this.progressBar_load_smd.TabIndex = 16;
-            // 
-            // label_load_smd
-            // 
-            this.label_load_smd.AutoSize = true;
-            this.label_load_smd.Location = new System.Drawing.Point(413, 24);
-            this.label_load_smd.Name = "label_load_smd";
-            this.label_load_smd.Size = new System.Drawing.Size(24, 13);
-            this.label_load_smd.TabIndex = 16;
-            this.label_load_smd.Text = "0 %";
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
+            this.aboutToolStripMenuItem.Text = "About";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
             // MainWindow
             // 
@@ -624,8 +633,16 @@
             this.menuStrip1.PerformLayout();
             this.tabControl1.ResumeLayout(false);
             this.tabOBJ.ResumeLayout(false);
+            this.groupBox_obj_save.ResumeLayout(false);
+            this.groupBox_obj_save.PerformLayout();
+            this.groupBox_obj_load.ResumeLayout(false);
+            this.groupBox_obj_load.PerformLayout();
             this.tabSMD.ResumeLayout(false);
             this.tabSMD.PerformLayout();
+            this.groupBox_save_smd.ResumeLayout(false);
+            this.groupBox_save_smd.PerformLayout();
+            this.groupBox_load_smd.ResumeLayout(false);
+            this.groupBox_load_smd.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_animspeed)).EndInit();
             this.tabOptions.ResumeLayout(false);
             this.tabOptions.PerformLayout();
@@ -637,14 +654,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_rotate_z)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_rotate_y)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_rotate_x)).EndInit();
-            this.groupBox_obj_load.ResumeLayout(false);
-            this.groupBox_obj_load.PerformLayout();
-            this.groupBox_obj_save.ResumeLayout(false);
-            this.groupBox_obj_save.PerformLayout();
-            this.groupBox_load_smd.ResumeLayout(false);
-            this.groupBox_load_smd.PerformLayout();
-            this.groupBox_save_smd.ResumeLayout(false);
-            this.groupBox_save_smd.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -660,7 +669,7 @@
         private System.Windows.Forms.TabPage tabOBJ;
         private System.Windows.Forms.TabPage tabSMD;
         private System.Windows.Forms.TabPage tabOptions;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button button_load_obj;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Label label_load_obj;
         private System.Windows.Forms.ProgressBar progressBar_load_obj;
@@ -701,6 +710,7 @@
         private System.Windows.Forms.GroupBox groupBox_save_smd;
         private System.Windows.Forms.Label label_load_smd;
         private System.Windows.Forms.ProgressBar progressBar_load_smd;
+        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
     }
 }
 

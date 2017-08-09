@@ -55,6 +55,8 @@ namespace MeshReducer
             camera = new Camera();
             directory = "";
             comboBox_smd_type.SelectedIndex = 1;
+
+            this.WindowState = FormWindowState.Maximized;
         }
         
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -938,6 +940,16 @@ namespace MeshReducer
         private void label_smd_speed_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(this, 
+"EZSZOFTVER - Mesh Reducer v1.0 (2017)\n" +
+"      Developer: Zoltan Erdos, Hungary\n" +
+"             http://ezszoftver.atw.hu/"
+
+, "About");
         }
     }
     
