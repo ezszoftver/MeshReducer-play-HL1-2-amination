@@ -491,7 +491,7 @@ namespace MeshReducer
                 label_save_obj.Update();
 
                 MeshToFile file = new MeshToFile();
-                file.SaveToFile(mesh, progressBar_save_obj, label_save_obj, MeshToFile.SaveFileType.OBJ, directory, filename);
+                file.SaveToFile(mesh, null, progressBar_save_obj, label_save_obj, MeshToFile.SaveFileType.OBJ, directory, filename);
                 file.Release();
                 file = null;
                 System.GC.Collect();
@@ -742,7 +742,7 @@ namespace MeshReducer
                 label_smd_save.Update();
 
                 MeshToFile file = new MeshToFile();
-                file.SaveToFile(mesh, progressBar_smd_save, label_smd_save, (comboBox_smd_type.SelectedIndex == 0) ? MeshToFile.SaveFileType.HL1SMD : MeshToFile.SaveFileType.HL2SMD, directory, filename);
+                file.SaveToFile(mesh, smd, progressBar_smd_save, label_smd_save, (comboBox_smd_type.SelectedIndex == 0) ? MeshToFile.SaveFileType.HL1SMD : MeshToFile.SaveFileType.HL2SMD, directory, filename);
                 file.Release();
                 file = null;
                 System.GC.Collect();

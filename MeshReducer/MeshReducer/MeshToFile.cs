@@ -118,21 +118,21 @@ namespace MeshReducer
         }
 
         public enum SaveFileType { OBJ = 1, HL1SMD = 2, HL2SMD = 3 };
-        public bool SaveToFile(Mesh mesh, System.Windows.Forms.ProgressBar progress_bar, System.Windows.Forms.Label label, SaveFileType extension, string directory, string filename)
+        public bool SaveToFile(Mesh mesh, SMDLoader smd, System.Windows.Forms.ProgressBar progress_bar, System.Windows.Forms.Label label, SaveFileType extension, string directory, string filename)
         {
             switch (extension)
             {
                 case (SaveFileType.OBJ):
                     {
-                        return SaveToOBJ(mesh, progress_bar, label, directory, filename);
+                        return SaveToOBJ(mesh, smd, progress_bar, label, directory, filename);
                     }
                 case (SaveFileType.HL1SMD):
                     {
-                        return SaveToHL1SMD(mesh, progress_bar, label, directory, filename);
+                        return SaveToHL1SMD(mesh, smd, progress_bar, label, directory, filename);
                     }
                 case (SaveFileType.HL2SMD):
                     {
-                        return SaveToHL2SMD(mesh, progress_bar, label, directory, filename);
+                        return SaveToHL2SMD(mesh, smd, progress_bar, label, directory, filename);
                     }
             }
 
@@ -280,7 +280,7 @@ namespace MeshReducer
             return global_normal;
         }
 
-        bool SaveToOBJ(Mesh mesh, System.Windows.Forms.ProgressBar progress_bar, System.Windows.Forms.Label label, string directory, string filename)
+        bool SaveToOBJ(Mesh mesh, SMDLoader smd, System.Windows.Forms.ProgressBar progress_bar, System.Windows.Forms.Label label, string directory, string filename)
         {
             int vertices_count = mesh.GetVerticesCount();
             progress_bar.Maximum = vertices_count;
@@ -298,7 +298,7 @@ namespace MeshReducer
             file.WriteLine("# http://ezszoftver.atw.hu/");
             file.WriteLine("# Num Vertices: " + vertices_count);
             file.WriteLine("");
-            if (mesh.mtllib.Length > 0)
+            if (mesh.is_obj)
             {
                 file.WriteLine("mtllib " + mesh.mtllib);
             }
@@ -394,32 +394,274 @@ namespace MeshReducer
             }
 
             file.Close();
+            file = null;
             return true;
         }
 
-        bool SaveToHL1SMD(Mesh mesh, System.Windows.Forms.ProgressBar progress_bar, System.Windows.Forms.Label label, string directory, string filename)
+        bool SaveToHL1SMD(Mesh mesh, SMDLoader smd, System.Windows.Forms.ProgressBar progress_bar, System.Windows.Forms.Label label, string directory, string filename)
         {
-            System.Console.WriteLine("save hl1 smd");
-            System.Console.WriteLine("directory: " + directory);
-            System.Console.WriteLine("filename: " + filename + ".smd");
-
             MeshPartitioning(mesh);
 
-            ;
+            StreamWriter file = File.CreateText(directory + "/" + filename + ".smd");
 
+            file.WriteLine("version 1");
+
+            // nodes
+            if (smd != null && mesh.is_hl1 || mesh.is_hl2)
+            {
+                file.WriteLine("nodes");
+                for (int i = 0; i < smd.nodes.Count; i++)
+                {
+                    file.WriteLine(i + " " + smd.nodes[i].name + " " + smd.nodes[i].parent_id);
+                }
+                file.WriteLine("end");
+            }
+            else
+            {
+                file.WriteLine("nodes");
+                file.WriteLine(0 + " \"root\" " + -1);
+                file.WriteLine("end");
+            }
+
+            // skeleton
+            if (smd != null && mesh.is_hl1 || mesh.is_hl2)
+            {
+                file.WriteLine("skeleton");
+                file.WriteLine("time 0");
+                for (int i = 0; i < smd.reference_skeleton.bones.Count; i++)
+                {
+                    SMDLoader.Bone bone = smd.reference_skeleton.bones[i];
+                    file.WriteLine(i + " " + bone.translate.X + " " + bone.translate.Y + " " + bone.translate.Z + " " + bone.rotate.X + " " + bone.rotate.Y + " " + bone.rotate.Z);
+                }
+                file.WriteLine("end");
+            }
+            else
+            {
+                file.WriteLine("skeleton");
+                file.WriteLine("time 0");
+                file.WriteLine(0 + " " + 0.0f + " " + 0.0f + " " + 0.0f + " " + 0.0f + " " + 0.0f + " " + 0.0f);
+                file.WriteLine("end");
+            }
+
+            // triangles
+            file.WriteLine("triangles");
+            for (int m = 0; m < mesh.materials.Count; m++)
+            {
+                Mesh.Material material = mesh.materials[m];
+
+                for (int i = 0; i < material.vertices.Count; i += 3)
+                {
+                    if (   material.vertices[i + 0] == null
+                        || material.vertices[i + 1] == null
+                        || material.vertices[i + 2] == null)
+                    {
+                        continue;
+                    }
+
+                    Vector3 A = material.vertices[i + 0].vertex;
+                    Vector3 B = material.vertices[i + 1].vertex;
+                    Vector3 C = material.vertices[i + 2].vertex;
+
+                    Vector2 at = material.vertices[i + 0].textcoords;
+                    Vector2 bt = material.vertices[i + 1].textcoords;
+                    Vector2 ct = material.vertices[i + 2].textcoords;
+
+                    Vector3 an = GetNormal(new Triangle(A, B, C), A);
+                    Vector3 bn = GetNormal(new Triangle(A, B, C), B);
+                    Vector3 cn = GetNormal(new Triangle(A, B, C), C);
+
+                    int id_a;
+                    int id_b;
+                    int id_c;
+
+                    if (mesh.is_hl1 || mesh.is_hl2)
+                    {
+                        id_a = material.vertices[i + 0].GetMaxWeightID();
+                        id_b = material.vertices[i + 1].GetMaxWeightID();
+                        id_c = material.vertices[i + 2].GetMaxWeightID();
+                    }
+                    else
+                    {
+                        id_a = 0;
+                        id_b = 0;
+                        id_c = 0;
+                    }
+
+                    if (an.X.ToString() == "NaN" || an.Y.ToString() == "NaN" || an.Z.ToString() == "NaN") { an = new Vector3(0, 1, 0); }
+                    if (bn.X.ToString() == "NaN" || bn.Y.ToString() == "NaN" || bn.Z.ToString() == "NaN") { bn = new Vector3(0, 1, 0); }
+                    if (cn.X.ToString() == "NaN" || cn.Y.ToString() == "NaN" || cn.Z.ToString() == "NaN") { cn = new Vector3(0, 1, 0); }
+
+                    file.WriteLine(material.texture_name);
+
+                    // A
+                    file.WriteLine(id_a + " " + A.X + " " + A.Y + " " + A.Z + " " + an.X + " " + an.Y + " " + an.Z + " " + at.X + " " + at.Y);
+                    // B
+                    file.WriteLine(id_b + " " + B.X + " " + B.Y + " " + B.Z + " " + bn.X + " " + bn.Y + " " + bn.Z + " " + bt.X + " " + bt.Y);
+                    // C
+                    file.WriteLine(id_c + " " + C.X + " " + C.Y + " " + C.Z + " " + cn.X + " " + cn.Y + " " + cn.Z + " " + ct.X + " " + ct.Y);
+                }
+            }
+            file.WriteLine("end");
+
+            
+            file.Close();
+            file = null;
             return true;
         }
 
-        bool SaveToHL2SMD(Mesh mesh, System.Windows.Forms.ProgressBar progress_bar, System.Windows.Forms.Label label, string directory, string filename)
+        bool SaveToHL2SMD(Mesh mesh, SMDLoader smd, System.Windows.Forms.ProgressBar progress_bar, System.Windows.Forms.Label label, string directory, string filename)
         {
-            System.Console.WriteLine("save hl2 smd");
-            System.Console.WriteLine("directory: " + directory);
-            System.Console.WriteLine("filename: " + filename + ".smd");
-
             MeshPartitioning(mesh);
 
-            ;
+            StreamWriter file = File.CreateText(directory + "/" + filename + ".smd");
 
+            file.WriteLine("version 1");
+
+            // nodes
+            if (smd != null && mesh.is_hl1 || mesh.is_hl2)
+            {
+                file.WriteLine("nodes");
+                for (int i = 0; i < smd.nodes.Count; i++)
+                {
+                    file.WriteLine(i + " " + smd.nodes[i].name + " " + smd.nodes[i].parent_id);
+                }
+                file.WriteLine("end");
+            }
+            else
+            {
+                file.WriteLine("nodes");
+                file.WriteLine(0 + " \"root\" " + -1);
+                file.WriteLine("end");
+            }
+
+            // skeleton
+            if (smd != null && mesh.is_hl1 || mesh.is_hl2)
+            {
+                file.WriteLine("skeleton");
+                file.WriteLine("time 0");
+                for (int i = 0; i < smd.reference_skeleton.bones.Count; i++)
+                {
+                    SMDLoader.Bone bone = smd.reference_skeleton.bones[i];
+                    file.WriteLine(i + " " + bone.translate.X + " " + bone.translate.Y + " " + bone.translate.Z + " " + bone.rotate.X + " " + bone.rotate.Y + " " + bone.rotate.Z);
+                }
+                file.WriteLine("end");
+            }
+            else
+            {
+                file.WriteLine("skeleton");
+                file.WriteLine("time 0");
+                file.WriteLine(0 + " " + 0.0f + " " + 0.0f + " " + 0.0f + " " + 0.0f + " " + 0.0f + " " + 0.0f);
+                file.WriteLine("end");
+            }
+
+            // triangles
+            file.WriteLine("triangles");
+            for (int m = 0; m < mesh.materials.Count; m++)
+            {
+                Mesh.Material material = mesh.materials[m];
+
+                for (int i = 0; i < material.vertices.Count; i += 3)
+                {
+                    if (material.vertices[i + 0] == null
+                        || material.vertices[i + 1] == null
+                        || material.vertices[i + 2] == null)
+                    {
+                        continue;
+                    }
+
+                    Vector3 A = material.vertices[i + 0].vertex;
+                    Vector3 B = material.vertices[i + 1].vertex;
+                    Vector3 C = material.vertices[i + 2].vertex;
+
+                    Vector2 at = material.vertices[i + 0].textcoords;
+                    Vector2 bt = material.vertices[i + 1].textcoords;
+                    Vector2 ct = material.vertices[i + 2].textcoords;
+
+                    Vector3 an = GetNormal(new Triangle(A, B, C), A);
+                    Vector3 bn = GetNormal(new Triangle(A, B, C), B);
+                    Vector3 cn = GetNormal(new Triangle(A, B, C), C);
+
+                    int id_a;
+                    int id_b;
+                    int id_c;
+
+                    if (mesh.is_hl1 || mesh.is_hl2)
+                    {
+                        id_a = material.vertices[i + 0].GetMaxWeightID();
+                        id_b = material.vertices[i + 1].GetMaxWeightID();
+                        id_c = material.vertices[i + 2].GetMaxWeightID();
+                    }
+                    else
+                    {
+                        id_a = 0;
+                        id_b = 0;
+                        id_c = 0;
+                    }
+
+                    if (an.X.ToString() == "NaN" || an.Y.ToString() == "NaN" || an.Z.ToString() == "NaN") { an = new Vector3(0, 1, 0); }
+                    if (bn.X.ToString() == "NaN" || bn.Y.ToString() == "NaN" || bn.Z.ToString() == "NaN") { bn = new Vector3(0, 1, 0); }
+                    if (cn.X.ToString() == "NaN" || cn.Y.ToString() == "NaN" || cn.Z.ToString() == "NaN") { cn = new Vector3(0, 1, 0); }
+
+                    file.WriteLine(material.texture_name);
+
+                    // A
+                    if (mesh.is_hl1 || mesh.is_hl2)
+                    {
+                        List<Mesh.MatrixIdAndWeight> matrices = material.vertices[i + 0].matrices;
+                        string str_weights = "";
+                        str_weights += " " + matrices.Count;
+                        for (int w = 0; w < matrices.Count; w++)
+                        {
+                            str_weights += " " + matrices[w].matrix_id + " " + matrices[w].weight;
+                        }
+                        file.WriteLine(id_a + " " + A.X + " " + A.Y + " " + A.Z + " " + an.X + " " + an.Y + " " + an.Z + " " + at.X + " " + at.Y + str_weights);
+                    }
+                    else
+                    {
+                        string str_weights = " 1 0 1.0";
+                        file.WriteLine(id_a + " " + A.X + " " + A.Y + " " + A.Z + " " + an.X + " " + an.Y + " " + an.Z + " " + at.X + " " + at.Y + str_weights);
+                    }
+                    // B
+                    if (mesh.is_hl1 || mesh.is_hl2)
+                    {
+                        List<Mesh.MatrixIdAndWeight> matrices = material.vertices[i + 1].matrices;
+                        string str_weights = "";
+                        str_weights += " " + matrices.Count;
+                        for (int w = 0; w < matrices.Count; w++)
+                        {
+                            str_weights += " " + matrices[w].matrix_id + " " + matrices[w].weight;
+                        }
+                        file.WriteLine(id_b + " " + B.X + " " + B.Y + " " + B.Z + " " + bn.X + " " + bn.Y + " " + bn.Z + " " + bt.X + " " + bt.Y + str_weights);
+                    }
+                    else
+                    {
+                        string str_weights = " 1 0 1.0";
+                        file.WriteLine(id_b + " " + B.X + " " + B.Y + " " + B.Z + " " + bn.X + " " + bn.Y + " " + bn.Z + " " + bt.X + " " + bt.Y + str_weights);
+                    }
+                    // C
+                    if (mesh.is_hl1 || mesh.is_hl2)
+                    {
+                        List<Mesh.MatrixIdAndWeight> matrices = material.vertices[i + 2].matrices;
+                        string str_weights = "";
+                        str_weights += " " + matrices.Count;
+                        for (int w = 0; w < matrices.Count; w++)
+                        {
+                            str_weights += " " + matrices[w].matrix_id + " " + matrices[w].weight;
+                        }
+                        file.WriteLine(id_c + " " + C.X + " " + C.Y + " " + C.Z + " " + cn.X + " " + cn.Y + " " + cn.Z + " " + ct.X + " " + ct.Y + str_weights);
+                    }
+                    else
+                    {
+                        string str_weights = " 1 0 1.0";
+                        file.WriteLine(id_c + " " + C.X + " " + C.Y + " " + C.Z + " " + cn.X + " " + cn.Y + " " + cn.Z + " " + ct.X + " " + ct.Y + str_weights);
+                    }
+                }
+            }
+            file.WriteLine("end");
+
+
+            file.Close();
+            file = null;
             return true;
         }
 

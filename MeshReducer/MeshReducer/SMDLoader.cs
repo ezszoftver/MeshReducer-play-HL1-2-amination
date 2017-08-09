@@ -24,7 +24,7 @@ namespace MeshReducer
             public int parent_id;
         };
         // csomópontok
-        List<Node> nodes;
+        public List<Node> nodes;
 
         // egy csont
         public class Bone
@@ -145,6 +145,7 @@ namespace MeshReducer
                 {
                     if (words.Count() == 9) // HL1
                     {
+                        mesh.is_obj = false;
                         mesh.is_hl1 = true;
                         mesh.is_hl2 = false;
 
@@ -166,6 +167,7 @@ namespace MeshReducer
                     }
                     else // HL2
                     {
+                        mesh.is_obj = false;
                         mesh.is_hl1 = false;
                         mesh.is_hl2 = true;
 

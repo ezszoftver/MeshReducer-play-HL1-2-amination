@@ -203,6 +203,9 @@ namespace MeshReducer
 
                 mesh.materials.Add(mat);
             }
+            mesh.is_obj = true;
+            mesh.is_hl1 = false;
+            mesh.is_hl2 = false;
             mesh.mtllib = mtllib;
 
             return true;

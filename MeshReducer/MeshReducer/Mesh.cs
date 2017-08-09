@@ -49,6 +49,22 @@ namespace MeshReducer
                 matrices.Add(new MatrixIdAndWeight(matrix_id, weight));
             }
 
+            public int GetMaxWeightID()
+            {
+                int matrix_id = 0; float max_weight = 0.0f;
+
+                for (int i = 0; i < matrices.Count; i++)
+                {
+                    if (matrices[i].weight > max_weight)
+                    {
+                        max_weight = matrices[i].weight;
+                        matrix_id = matrices[i].matrix_id;
+                    }
+                }
+
+                return matrix_id;
+            }
+
             public Vector3 vertex;
             public Vector2 textcoords;
             public List<MatrixIdAndWeight> matrices;
@@ -76,6 +92,7 @@ namespace MeshReducer
         public bool is_loaded;
 
         public string mtllib;
+        public bool is_obj;
         public bool is_hl1;
         public bool is_hl2;
 
@@ -88,14 +105,18 @@ namespace MeshReducer
             min = new Vector3(0, 0, 0);
             max = new Vector3(0, 0, 0);
             mtllib = "";
+            is_obj = false;
             is_hl1 = false;
-            is_hl2 = true;
+            is_hl2 = false;
         }
 
         public Mesh(Mesh b)
         {
             is_loaded = b.is_loaded;
             mtllib = b.mtllib;
+            is_obj = b.is_obj;
+            is_hl1 = b.is_hl1;
+            is_hl2 = b.is_hl2;
 
             transforms = new List<Matrix4x4>();
             foreach (Matrix4x4 b_m in b.transforms)
