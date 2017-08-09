@@ -400,6 +400,15 @@ namespace MeshReducer
 
         bool SaveToHL1SMD(Mesh mesh, SMDLoader smd, System.Windows.Forms.ProgressBar progress_bar, System.Windows.Forms.Label label, string directory, string filename)
         {
+            int vertices_count = mesh.GetVerticesCount();
+            progress_bar.Maximum = vertices_count;
+            progress_bar.Value = 0;
+            progress_bar.Update();
+            label.Text = "0 %";
+            label.Update();
+            int face = 0;
+            int last_face = 0;
+
             MeshPartitioning(mesh);
 
             StreamWriter file = File.CreateText(directory + "/" + filename + ".smd");
@@ -499,6 +508,19 @@ namespace MeshReducer
                     file.WriteLine(id_b + " " + B.X + " " + B.Y + " " + B.Z + " " + bn.X + " " + bn.Y + " " + bn.Z + " " + bt.X + " " + bt.Y);
                     // C
                     file.WriteLine(id_c + " " + C.X + " " + C.Y + " " + C.Z + " " + cn.X + " " + cn.Y + " " + cn.Z + " " + ct.X + " " + ct.Y);
+
+                    if (((float)(face - last_face) / (float)vertices_count) * 100.0f >= 1.0f)
+                    {
+                        last_face = face;
+
+                        progress_bar.Value = last_face;
+                        progress_bar.Update();
+
+                        label.Text = (int)(100.0f * ((float)last_face / (float)vertices_count)) + " %";
+                        label.Update();
+                    }
+
+                    face += 3;
                 }
             }
             file.WriteLine("end");
@@ -511,6 +533,15 @@ namespace MeshReducer
 
         bool SaveToHL2SMD(Mesh mesh, SMDLoader smd, System.Windows.Forms.ProgressBar progress_bar, System.Windows.Forms.Label label, string directory, string filename)
         {
+            int vertices_count = mesh.GetVerticesCount();
+            progress_bar.Maximum = vertices_count;
+            progress_bar.Value = 0;
+            progress_bar.Update();
+            label.Text = "0 %";
+            label.Update();
+            int face = 0;
+            int last_face = 0;
+
             MeshPartitioning(mesh);
 
             StreamWriter file = File.CreateText(directory + "/" + filename + ".smd");
@@ -655,6 +686,19 @@ namespace MeshReducer
                         string str_weights = " 1 0 1.0";
                         file.WriteLine(id_c + " " + C.X + " " + C.Y + " " + C.Z + " " + cn.X + " " + cn.Y + " " + cn.Z + " " + ct.X + " " + ct.Y + str_weights);
                     }
+
+                    if (((float)(face - last_face) / (float)vertices_count) * 100.0f >= 1.0f)
+                    {
+                        last_face = face;
+
+                        progress_bar.Value = last_face;
+                        progress_bar.Update();
+
+                        label.Text = (int)(100.0f * ((float)last_face / (float)vertices_count)) + " %";
+                        label.Update();
+                    }
+
+                    face += 3;
                 }
             }
             file.WriteLine("end");

@@ -72,18 +72,30 @@ namespace MeshReducer
 
             // obj progressbar
             {
+                groupBox_obj_load.Width = ClientSize.Width - 20;
+                groupBox_obj_save.Width = ClientSize.Width - 20;
+
                 // load
-                progressBar_load_obj.Width = tabControl1.Width - 120;
+                progressBar_load_obj.Width = tabControl1.Width - 130;
                 label_load_obj.Location = new Point(progressBar_load_obj.Location.X + ((progressBar_load_obj.Width - label_load_obj.Width) / 2), progressBar_load_obj.Location.Y + ((progressBar_load_obj.Height - label_load_obj.Height) / 2));
                 // save
-                progressBar_save_obj.Width = tabControl1.Width - 300;
+                progressBar_save_obj.Width = tabControl1.Width - 298;
                 label_save_obj.Location = new Point(progressBar_save_obj.Location.X + ((progressBar_save_obj.Width - label_save_obj.Width) / 2), progressBar_save_obj.Location.Y + ((progressBar_save_obj.Height - label_save_obj.Height) / 2));
             }
 
             // smd progressbar
             {
+                groupBox_load_smd.Width = ClientSize.Width - 20;
+                groupBox_save_smd.Width = ClientSize.Width - 20;
+
+                trackBar_animspeed.Width = ClientSize.Width - 145;
+
+                // load
+                progressBar_load_smd.Width = tabControl1.Width - 145;
+                label_load_smd.Location = new Point(progressBar_load_smd.Location.X + ((progressBar_load_smd.Width - label_load_smd.Width) / 2), progressBar_load_smd.Location.Y + ((progressBar_load_smd.Height - label_load_smd.Height) / 2));
+
                 // save
-                progressBar_smd_save.Width = tabControl1.Width - 400;
+                progressBar_smd_save.Width = tabControl1.Width - 410;
                 label_smd_save.Location = new Point(progressBar_smd_save.Location.X + ((progressBar_smd_save.Width - label_smd_save.Width) / 2), progressBar_smd_save.Location.Y + ((progressBar_smd_save.Height - label_smd_save.Height) / 2));
             }
 
@@ -128,6 +140,8 @@ namespace MeshReducer
             current_datetime = DateTime.Now;
             TimeSpan diff = current_datetime - elapsed_datetime;
             float dt = (float)diff.TotalMilliseconds / 1000.0f;
+            if (dt <= 0.0f) dt = 0.0f;
+            if (dt > 0.1f) dt = 0.1f;
 
             // camera
             // keyboard
@@ -176,7 +190,10 @@ namespace MeshReducer
                 {
                     smd.SetFPS(trackBar_animspeed.Value);
                     time += dt;
-                    if (time >= smd.GetFullTime()) time -= smd.GetFullTime();
+                    while (time >= smd.GetFullTime())
+                    {
+                        time -= smd.GetFullTime();
+                    }
                     smd.SetTime(time, mesh);
 
                     switch (draw_type)
@@ -627,6 +644,12 @@ namespace MeshReducer
                 return;
             }
 
+            progressBar_load_smd.Maximum = 100;
+            progressBar_load_smd.Value = 0;
+            progressBar_load_smd.Update();
+            label_load_smd.Text = "0 %";
+            label_load_smd.Update();
+
             OpenFileDialog theDialog = new OpenFileDialog();
             theDialog.Title = "Open SMD Reference File";
             theDialog.Filter = "SMD files|*.smd";
@@ -651,6 +674,14 @@ namespace MeshReducer
                 return;
             }
 
+            progressBar_load_smd.Maximum = mesh.materials.Count;
+            progressBar_load_smd.Value = 0;
+            progressBar_load_smd.Update();
+            int step = 0;
+            float percent = ((float)step / (float)mesh.materials.Count) * 100.0f;
+            label_load_smd.Text = (int)percent + " %";
+            label_load_smd.Update();
+
             foreach (Mesh.Material material in mesh.materials)
             {
                 string image_filename = directory + @"\" + material.texture_name;
@@ -661,7 +692,19 @@ namespace MeshReducer
                         return;
                     }
                 }
+
+                step++;
+                progressBar_load_smd.Value = step;
+                progressBar_load_smd.Update();
+                percent = ((float)step / (float)mesh.materials.Count) * 100.0f;
+                label_load_smd.Text = ((int)percent) + " %";
+                label_load_smd.Update();
             }
+
+            progressBar_load_smd.Value = mesh.materials.Count;
+            progressBar_load_smd.Update();
+            label_load_smd.Text = "100 %";
+            label_load_smd.Update();
 
             if (mesh.is_hl1) { comboBox_smd_type.SelectedIndex = 0; }
             if (mesh.is_hl2) { comboBox_smd_type.SelectedIndex = 1; }
@@ -885,6 +928,16 @@ namespace MeshReducer
                 textBox_obj_filename.SelectionLength = 0;
             }
             
+        }
+
+        private void label6_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label_smd_speed_Click(object sender, EventArgs e)
+        {
+
         }
     }
     
