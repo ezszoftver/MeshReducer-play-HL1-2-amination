@@ -145,6 +145,9 @@ namespace MeshReducer
                 {
                     if (words.Count() == 9) // HL1
                     {
+                        mesh.is_hl1 = true;
+                        mesh.is_hl2 = false;
+
                         // matrix
                         int matrix_id = int.Parse(words[0]);
                         float weight = 1.0f;
@@ -163,6 +166,9 @@ namespace MeshReducer
                     }
                     else // HL2
                     {
+                        mesh.is_hl1 = false;
+                        mesh.is_hl2 = true;
+
                         // vertex
                         Vector3 v = new Vector3(float.Parse(words[1]), float.Parse(words[2]), float.Parse(words[3]));
                         // textcoords

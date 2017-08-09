@@ -54,6 +54,7 @@ namespace MeshReducer
             radius = 1.0f;
             camera = new Camera();
             directory = "";
+            comboBox_smd_type.SelectedIndex = 1;
         }
         
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -82,7 +83,7 @@ namespace MeshReducer
             // smd progressbar
             {
                 // save
-                progressBar_smd_save.Width = tabControl1.Width - 130;
+                progressBar_smd_save.Width = tabControl1.Width - 400;
                 label_smd_save.Location = new Point(progressBar_smd_save.Location.X + ((progressBar_smd_save.Width - label_smd_save.Width) / 2), progressBar_smd_save.Location.Y + ((progressBar_smd_save.Height - label_smd_save.Height) / 2));
             }
 
@@ -470,7 +471,7 @@ namespace MeshReducer
             radius = Vector3.Distance(center, mesh.max);
             camera.pos = center + (new Vector3(0, 0, 1) * radius * 2.0f);
             camera.dir = Vector3.Normalize(center - camera.pos);
-            camera.SetVelocity(radius / 5.0f);
+            camera.SetVelocity(radius / 1.0f);
             
             mesh.is_loaded = true;
 
@@ -662,6 +663,9 @@ namespace MeshReducer
                 }
             }
 
+            if (mesh.is_hl1) { comboBox_smd_type.SelectedIndex = 0; }
+            if (mesh.is_hl2) { comboBox_smd_type.SelectedIndex = 1; }
+
             trackBar_rotate_x.Value = 0;
             trackBar_rotate_y.Value = 0;
             trackBar_rotate_z.Value = 0;
@@ -727,7 +731,29 @@ namespace MeshReducer
 
         private void button_smd_save_Click(object sender, EventArgs e)
         {
+            string filename = textBox_smd_filename.Text;
+            if (mesh != null && mesh.is_loaded && directory.Length > 0 && filename.Length > 0)
+            {
+                progressBar_smd_save.Maximum = 100;
+                progressBar_smd_save.Value = 0;
+                progressBar_smd_save.Update();
 
+                label_smd_save.Text = "  0 %";
+                label_smd_save.Update();
+
+                MeshToFile file = new MeshToFile();
+                file.SaveToFile(mesh, progressBar_smd_save, label_smd_save, (comboBox_smd_type.SelectedIndex == 0) ? MeshToFile.SaveFileType.HL1SMD : MeshToFile.SaveFileType.HL2SMD, directory, filename);
+                file.Release();
+                file = null;
+                System.GC.Collect();
+
+                progressBar_smd_save.Maximum = 100;
+                progressBar_smd_save.Value = 100;
+                progressBar_smd_save.Update();
+
+                label_smd_save.Text = "100 %";
+                label_smd_save.Update();
+            }
         }
 
         private void label5_Click(object sender, EventArgs e)
@@ -766,16 +792,23 @@ namespace MeshReducer
 
                 MeshReducer reducer = new MeshReducer(mesh);
 
+                float last_percent = 0.0f;
                 int num_vertices = mesh.GetVerticesCount() - end_vertices_count;
                 while (end_vertices_count < mesh.GetVerticesCount() && mesh.GetVerticesCount() > 3)
                 {
                     int curr_vertices = mesh.GetVerticesCount() - end_vertices_count;
                     float percent = (1.0f - ((float)curr_vertices / (float)num_vertices)) * 100.0f;
-                    progressBar_reduce.Value = (int)percent;
-                    progressBar_reduce.Update();
-                    label_reduce.Text = ((int)percent) + " %";
-                    label_reduce.Update();
 
+                    if ((percent - last_percent) * 100.0f >= 1.0f)
+                    {
+                        last_percent = percent;
+
+                        progressBar_reduce.Value = (int)percent;
+                        progressBar_reduce.Update();
+                        label_reduce.Text = ((int)percent) + " %";
+                        label_reduce.Update();
+                    }
+                    
                     reducer.EraseLine();
                 }
 

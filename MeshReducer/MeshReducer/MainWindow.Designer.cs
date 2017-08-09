@@ -35,6 +35,8 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabOBJ = new System.Windows.Forms.TabPage();
+            this.label5 = new System.Windows.Forms.Label();
+            this.textBox_obj_filename = new System.Windows.Forms.TextBox();
             this.label_save_obj = new System.Windows.Forms.Label();
             this.progressBar_save_obj = new System.Windows.Forms.ProgressBar();
             this.label_load_obj = new System.Windows.Forms.Label();
@@ -67,8 +69,9 @@
             this.label3 = new System.Windows.Forms.Label();
             this.trackBar_rotate_x = new System.Windows.Forms.TrackBar();
             this.label2 = new System.Windows.Forms.Label();
-            this.textBox_obj_filename = new System.Windows.Forms.TextBox();
-            this.label5 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.textBox_smd_filename = new System.Windows.Forms.TextBox();
+            this.comboBox_smd_type = new System.Windows.Forms.ComboBox();
             this.menuStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabOBJ.SuspendLayout();
@@ -118,7 +121,7 @@
             this.tabControl1.Controls.Add(this.tabOBJ);
             this.tabControl1.Controls.Add(this.tabSMD);
             this.tabControl1.Controls.Add(this.tabOptions);
-            this.tabControl1.Location = new System.Drawing.Point(12, 719);
+            this.tabControl1.Location = new System.Drawing.Point(12, 451);
             this.tabControl1.Multiline = true;
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
@@ -143,6 +146,26 @@
             this.tabOBJ.Text = "OBJ File";
             this.tabOBJ.UseVisualStyleBackColor = true;
             this.tabOBJ.Click += new System.EventHandler(this.tabOBJ_Click);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.BackColor = System.Drawing.Color.Transparent;
+            this.label5.Location = new System.Drawing.Point(140, 49);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(30, 13);
+            this.label5.TabIndex = 8;
+            this.label5.Text = ".OBJ";
+            // 
+            // textBox_obj_filename
+            // 
+            this.textBox_obj_filename.Location = new System.Drawing.Point(6, 45);
+            this.textBox_obj_filename.Name = "textBox_obj_filename";
+            this.textBox_obj_filename.Size = new System.Drawing.Size(134, 20);
+            this.textBox_obj_filename.TabIndex = 6;
+            this.textBox_obj_filename.Text = "LOD_1";
+            this.textBox_obj_filename.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textBox_obj_filename.TextChanged += new System.EventHandler(this.textBox_obj_filename_TextChanged);
             // 
             // label_save_obj
             // 
@@ -198,6 +221,9 @@
             // 
             // tabSMD
             // 
+            this.tabSMD.Controls.Add(this.comboBox_smd_type);
+            this.tabSMD.Controls.Add(this.label6);
+            this.tabSMD.Controls.Add(this.textBox_smd_filename);
             this.tabSMD.Controls.Add(this.label_smd_save);
             this.tabSMD.Controls.Add(this.progressBar_smd_save);
             this.tabSMD.Controls.Add(this.button_smd_save);
@@ -217,7 +243,7 @@
             // label_smd_save
             // 
             this.label_smd_save.AutoSize = true;
-            this.label_smd_save.Location = new System.Drawing.Point(412, 130);
+            this.label_smd_save.Location = new System.Drawing.Point(548, 129);
             this.label_smd_save.Name = "label_smd_save";
             this.label_smd_save.Size = new System.Drawing.Size(24, 13);
             this.label_smd_save.TabIndex = 12;
@@ -226,16 +252,16 @@
             // 
             // progressBar_smd_save
             // 
-            this.progressBar_smd_save.Location = new System.Drawing.Point(117, 125);
+            this.progressBar_smd_save.Location = new System.Drawing.Point(385, 123);
             this.progressBar_smd_save.Name = "progressBar_smd_save";
-            this.progressBar_smd_save.Size = new System.Drawing.Size(619, 23);
+            this.progressBar_smd_save.Size = new System.Drawing.Size(351, 23);
             this.progressBar_smd_save.TabIndex = 11;
             // 
             // button_smd_save
             // 
-            this.button_smd_save.Location = new System.Drawing.Point(6, 125);
+            this.button_smd_save.Location = new System.Drawing.Point(296, 124);
             this.button_smd_save.Name = "button_smd_save";
-            this.button_smd_save.Size = new System.Drawing.Size(105, 23);
+            this.button_smd_save.Size = new System.Drawing.Size(83, 23);
             this.button_smd_save.TabIndex = 10;
             this.button_smd_save.Text = "Save As";
             this.button_smd_save.UseVisualStyleBackColor = true;
@@ -473,35 +499,46 @@
             this.label2.TabIndex = 0;
             this.label2.Text = "X Axis";
             // 
-            // textBox_obj_filename
+            // label6
             // 
-            this.textBox_obj_filename.Location = new System.Drawing.Point(6, 45);
-            this.textBox_obj_filename.Name = "textBox_obj_filename";
-            this.textBox_obj_filename.Size = new System.Drawing.Size(134, 20);
-            this.textBox_obj_filename.TabIndex = 6;
-            this.textBox_obj_filename.Text = "LOD_1";
-            this.textBox_obj_filename.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textBox_obj_filename.TextChanged += new System.EventHandler(this.textBox_obj_filename_TextChanged);
+            this.label6.AutoSize = true;
+            this.label6.BackColor = System.Drawing.Color.Transparent;
+            this.label6.Location = new System.Drawing.Point(140, 129);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(34, 13);
+            this.label6.TabIndex = 14;
+            this.label6.Text = ".SMD";
             // 
-            // label5
+            // textBox_smd_filename
             // 
-            this.label5.AutoSize = true;
-            this.label5.BackColor = System.Drawing.Color.Transparent;
-            this.label5.Location = new System.Drawing.Point(140, 49);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(30, 13);
-            this.label5.TabIndex = 8;
-            this.label5.Text = ".OBJ";
+            this.textBox_smd_filename.Location = new System.Drawing.Point(6, 125);
+            this.textBox_smd_filename.Name = "textBox_smd_filename";
+            this.textBox_smd_filename.Size = new System.Drawing.Size(134, 20);
+            this.textBox_smd_filename.TabIndex = 13;
+            this.textBox_smd_filename.Text = "LOD_1";
+            this.textBox_smd_filename.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // comboBox_smd_type
+            // 
+            this.comboBox_smd_type.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox_smd_type.FormattingEnabled = true;
+            this.comboBox_smd_type.Items.AddRange(new object[] {
+            "Half-Life 1 Compatible",
+            "Half-Life 2 Compatible"});
+            this.comboBox_smd_type.Location = new System.Drawing.Point(180, 125);
+            this.comboBox_smd_type.Name = "comboBox_smd_type";
+            this.comboBox_smd_type.Size = new System.Drawing.Size(110, 21);
+            this.comboBox_smd_type.TabIndex = 15;
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 922);
+            this.ClientSize = new System.Drawing.Size(784, 662);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
-            this.MinimumSize = new System.Drawing.Size(800, 960);
+            this.MinimumSize = new System.Drawing.Size(800, 700);
             this.Name = "MainWindow";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Mesh Reducer v1.0";
@@ -578,6 +615,9 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox textBox_obj_filename;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.ComboBox comboBox_smd_type;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox textBox_smd_filename;
     }
 }
 

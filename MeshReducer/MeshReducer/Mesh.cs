@@ -74,7 +74,10 @@ namespace MeshReducer
         public List<Material>  materials;
         public Vector3 min, max;
         public bool is_loaded;
+
         public string mtllib;
+        public bool is_hl1;
+        public bool is_hl2;
 
         public Mesh()
         {
@@ -85,11 +88,14 @@ namespace MeshReducer
             min = new Vector3(0, 0, 0);
             max = new Vector3(0, 0, 0);
             mtllib = "";
+            is_hl1 = false;
+            is_hl2 = true;
         }
 
         public Mesh(Mesh b)
         {
             is_loaded = b.is_loaded;
+            mtllib = b.mtllib;
 
             transforms = new List<Matrix4x4>();
             foreach (Matrix4x4 b_m in b.transforms)

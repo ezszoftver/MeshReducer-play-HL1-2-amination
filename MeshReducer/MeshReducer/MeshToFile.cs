@@ -118,21 +118,21 @@ namespace MeshReducer
         }
 
         public enum SaveFileType { OBJ = 1, HL1SMD = 2, HL2SMD = 3 };
-        public bool SaveToFile(Mesh mesh, System.Windows.Forms.ProgressBar progress_bar, System.Windows.Forms.Label label, SaveFileType extension, string path, string filename)
+        public bool SaveToFile(Mesh mesh, System.Windows.Forms.ProgressBar progress_bar, System.Windows.Forms.Label label, SaveFileType extension, string directory, string filename)
         {
             switch (extension)
             {
                 case (SaveFileType.OBJ):
                     {
-                        return SaveToOBJ(mesh, progress_bar, label, path, filename);
+                        return SaveToOBJ(mesh, progress_bar, label, directory, filename);
                     }
                 case (SaveFileType.HL1SMD):
                     {
-                        return SaveToHL1SMD(mesh, progress_bar, label, path, filename);
+                        return SaveToHL1SMD(mesh, progress_bar, label, directory, filename);
                     }
                 case (SaveFileType.HL2SMD):
                     {
-                        return SaveToHL2SMD(mesh, progress_bar, label, path, filename);
+                        return SaveToHL2SMD(mesh, progress_bar, label, directory, filename);
                     }
             }
 
@@ -241,9 +241,18 @@ namespace MeshReducer
             return (radian * (180.0f / (float)Math.PI));
         }
 
-        float GetAngle(Vector3 a, Vector3 b)
+        float DegreeToRadian(float angle)
         {
-            return RadianToDegree((float)Math.Acos(Vector3.Dot(Vector3.Normalize(a), Vector3.Normalize(b))));
+            return ((float)Math.PI * angle / 180.0f);
+        }
+
+        float GetRadian(Vector3 a, Vector3 b)
+        {
+            Vector3 ae = Vector3.Normalize(a);
+            Vector3 be = Vector3.Normalize(b);
+            if (IsEqual(ae, be)) { return 0.0f; }
+
+            return (float)Math.Acos(Vector3.Dot(ae, be));
         }
 
         Vector3 GetNormal(Triangle triangle, Vector3 vertex)
@@ -256,12 +265,15 @@ namespace MeshReducer
 
             foreach (Triangle tri in part[i, j, k])
             {
-                Vector3 local_normal = tri.GetNormal();
-
-                if (GetAngle(triangle_normal, local_normal) < 45.0f)
+                if (IsEqual(tri.A, vertex) || IsEqual(tri.B, vertex) || IsEqual(tri.C, vertex))
                 {
-                    global_normal += local_normal;
-                    global_normal = Vector3.Normalize(global_normal);
+                    Vector3 local_normal = tri.GetNormal();
+
+                    if (GetRadian(triangle_normal, local_normal) < DegreeToRadian(89.99f))
+                    {
+                        global_normal += local_normal;
+                        global_normal = Vector3.Normalize(global_normal);
+                    }
                 }
             }
 
@@ -270,16 +282,21 @@ namespace MeshReducer
 
         bool SaveToOBJ(Mesh mesh, System.Windows.Forms.ProgressBar progress_bar, System.Windows.Forms.Label label, string directory, string filename)
         {
-            MeshPartitioning(mesh);
+            int vertices_count = mesh.GetVerticesCount();
+            progress_bar.Maximum = vertices_count;
+            progress_bar.Value = 0;
+            progress_bar.Update();
 
-            System.Console.WriteLine("directory: " + directory);
-            System.Console.WriteLine("filename: " + filename);
+            label.Text = "0 %";
+            label.Update();
+
+            MeshPartitioning(mesh);
 
             StreamWriter file = File.CreateText(directory + "/" + filename + ".obj");
 
             file.WriteLine("# EZSZOFTVER - Mesh Reducer v1.0 (2017)");
             file.WriteLine("# http://ezszoftver.atw.hu/");
-            file.WriteLine("# Num Vertices: " + mesh.GetVerticesCount());
+            file.WriteLine("# Num Vertices: " + vertices_count);
             file.WriteLine("");
             if (mesh.mtllib.Length > 0)
             {
@@ -306,6 +323,7 @@ namespace MeshReducer
             file.WriteLine("");
 
             int face = 1;
+            int last_face = face;
 
             for (int m = 0; m < mesh.materials.Count; m++)
             {
@@ -334,9 +352,9 @@ namespace MeshReducer
                     Vector3 bn = GetNormal(new Triangle(A, B, C), B);
                     Vector3 cn = GetNormal(new Triangle(A, B, C), C);
 
-                    if (an.X.ToString() == "NaN" || an.Y.ToString() == "NaN" || an.Z.ToString() == "NaN") { /*an = new Vector3(1, 0, 0);*/continue; }
-                    if (bn.X.ToString() == "NaN" || bn.Y.ToString() == "NaN" || bn.Z.ToString() == "NaN") { /*bn = new Vector3(1, 0, 0);*/continue; }
-                    if (cn.X.ToString() == "NaN" || cn.Y.ToString() == "NaN" || cn.Z.ToString() == "NaN") { /*cn = new Vector3(1, 0, 0);*/continue; }
+                    if (an.X.ToString() == "NaN" || an.Y.ToString() == "NaN" || an.Z.ToString() == "NaN") { an = new Vector3(0, 1, 0); }
+                    if (bn.X.ToString() == "NaN" || bn.Y.ToString() == "NaN" || bn.Z.ToString() == "NaN") { bn = new Vector3(0, 1, 0); }
+                    if (cn.X.ToString() == "NaN" || cn.Y.ToString() == "NaN" || cn.Z.ToString() == "NaN") { cn = new Vector3(0, 1, 0); }
 
                     // A
                     file.WriteLine("v " + A.X + " " + A.Y + " " + A.Z);
@@ -358,6 +376,17 @@ namespace MeshReducer
                                         + (face + 1) + "/" + (face + 1) + "/" + (face + 1) + " "
                                         + (face + 2) + "/" + (face + 2) + "/" + (face + 2));
 
+                    if (((float)(face - last_face) / (float)vertices_count) * 100.0f >= 1.0f)
+                    {
+                        last_face = face;
+
+                        progress_bar.Value = face;
+                        progress_bar.Update();
+
+                        label.Text = (int)(100.0f * ((float)face / (float)vertices_count)) + " %";
+                        label.Update();
+                    }
+                    
                     face += 3;
                 }
 
@@ -368,8 +397,12 @@ namespace MeshReducer
             return true;
         }
 
-        bool SaveToHL1SMD(Mesh mesh, System.Windows.Forms.ProgressBar progress_bar, System.Windows.Forms.Label label, string path, string filename)
+        bool SaveToHL1SMD(Mesh mesh, System.Windows.Forms.ProgressBar progress_bar, System.Windows.Forms.Label label, string directory, string filename)
         {
+            System.Console.WriteLine("save hl1 smd");
+            System.Console.WriteLine("directory: " + directory);
+            System.Console.WriteLine("filename: " + filename + ".smd");
+
             MeshPartitioning(mesh);
 
             ;
@@ -377,8 +410,12 @@ namespace MeshReducer
             return true;
         }
 
-        bool SaveToHL2SMD(Mesh mesh, System.Windows.Forms.ProgressBar progress_bar, System.Windows.Forms.Label label, string path, string filename)
+        bool SaveToHL2SMD(Mesh mesh, System.Windows.Forms.ProgressBar progress_bar, System.Windows.Forms.Label label, string directory, string filename)
         {
+            System.Console.WriteLine("save hl2 smd");
+            System.Console.WriteLine("directory: " + directory);
+            System.Console.WriteLine("filename: " + filename + ".smd");
+
             MeshPartitioning(mesh);
 
             ;
