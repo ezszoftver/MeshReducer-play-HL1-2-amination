@@ -456,13 +456,27 @@ namespace MeshReducer
                 label_load_obj.Text = (int)percent + " %";
                 label_load_obj.Update();
 
+                if (material.texture_name.Split(new char[] { ' ' })[0] == "color_texture")
+                {
+                    int red   = int.Parse(material.texture_name.Split(new char[] { ' ' })[1]);
+                    int green = int.Parse(material.texture_name.Split(new char[] { ' ' })[2]);
+                    int blue  = int.Parse(material.texture_name.Split(new char[] { ' ' })[3]);
+                    
+                    if (!material.texture.Load(red, green, blue))
+                    {
+                        return;
+                    }
+
+                    continue;
+                }
+
                 string image_filename = "";
                 if (material.texture_name.Contains(":"))
                 {
                     image_filename = material.texture_name;
                 }
                 else {
-                    image_filename = directory + @"\" + material.texture_name;
+                    image_filename = directory + @"/" + material.texture_name;
                 }
 
                 if (!material.texture.Load(image_filename))
@@ -472,6 +486,8 @@ namespace MeshReducer
                         return;
                     }
                 }
+
+                continue;
             }
 
             progressBar_load_obj.Value = progressBar_load_obj.Maximum;
@@ -686,7 +702,7 @@ namespace MeshReducer
 
             foreach (Mesh.Material material in mesh.materials)
             {
-                string image_filename = directory + @"\" + material.texture_name;
+                string image_filename = directory + @"/" + material.texture_name;
                 if (!material.texture.Load(image_filename))
                 {
                     if (!material.texture.Load("TextureNotFound.bmp"))

@@ -83,7 +83,7 @@ namespace MeshReducer
 
         public bool LoadReference(string directory, string filename, Mesh mesh)
         {
-            string[] lines = File.ReadAllText(directory + @"\" + filename).Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = File.ReadAllText(directory + @"/" + filename).Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
             int mat_id = -1;
 
@@ -253,7 +253,7 @@ namespace MeshReducer
 
         public bool AddAnimation(string directory, string filename, string anim_name, float fps)
         {
-            string[] lines = File.ReadAllText(directory + @"\" + filename).Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = File.ReadAllText(directory + @"/" + filename).Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
             Animation animation = new Animation();
             animation.name = anim_name;

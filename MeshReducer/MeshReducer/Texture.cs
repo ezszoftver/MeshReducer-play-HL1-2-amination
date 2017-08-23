@@ -26,6 +26,32 @@ namespace MeshReducer
             id[0] = b.id[0];
         }
 
+        public bool Load(int red, int green, int blue)
+        {
+            byte[] data = new byte[8 * 8 * 4];
+            for (int i = 0; i < data.Length; i+=4)
+            {
+                data[i + 0] = (byte)blue;
+                data[i + 1] = (byte)green;
+                data[i + 2] = (byte)red;
+                data[i + 3] = (byte)255;
+            }
+
+            Gl.glGenTextures(1, id);
+            Gl.glBindTexture(Gl.GL_TEXTURE_2D, id[0]);
+
+            float[] maxAnisotropy = new float[1];
+            Gl.glGetFloatv(Gl.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy);
+            Gl.glTexParameterf(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy[0]);
+
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_LINEAR);
+            Gl.glTexParameteri(Gl.GL_TEXTURE_2D, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_LINEAR_MIPMAP_LINEAR);
+            Glu.gluBuild2DMipmaps(Gl.GL_TEXTURE_2D, Gl.GL_RGBA8, 8, 8, Gl.GL_BGRA, Gl.GL_UNSIGNED_BYTE, data);
+
+            data = null;
+            return true;
+        }
+
         public bool Load(string filename)
         {
             if (!File.Exists(filename)) { return false; }

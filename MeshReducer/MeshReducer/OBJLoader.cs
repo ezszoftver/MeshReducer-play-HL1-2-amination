@@ -66,7 +66,7 @@ namespace MeshReducer
 
         public Boolean Load(string directory, string filename, Mesh mesh)
         {
-            string[] lines = File.ReadAllText(directory + @"\" + filename).Split(new char[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = File.ReadAllText(directory + @"/" + filename).Split(new char[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
 
             mesh.min = new Vector3(+1000000.0f, +1000000.0f, +1000000.0f);
             mesh.max = new Vector3(-1000000.0f, -1000000.0f, -1000000.0f);
@@ -102,11 +102,12 @@ namespace MeshReducer
                         }
                     case ("mtllib"): {
                             mtllib = words[1];
-                            string[] mtl_lines = File.ReadAllText(directory + @"\" + words[1]).Split(new char[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
+                            if (!File.Exists(directory + @"/" + words[1])) { return false; }
+                            string[] mtl_lines = File.ReadAllText(directory + @"/" + words[1]).Split(new char[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
 
                             string material = "";
                             string texture_name = "";
-                            bool is_save = true;
+                            bool is_saved = true;
 
                             foreach (string mtl_line in mtl_lines) {
                                 string[] mtl_words = mtl_line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -116,34 +117,51 @@ namespace MeshReducer
                                             break;
                                         }
                                     case ("newmtl"): {
-                                            if (is_save == false) {
-                                                texture_name = "TextureNotFound.bmp";
+                                            if (is_saved == false)
+                                            {
+                                                if (texture_name == "") texture_name = "TextureNotFound.bmp";
 
                                                 materials.Add(new Material(texture_name));
                                                 material_to_texture.Add(material, texture_name);
                                                 int id = material_to_id.Count;
                                                 material_to_id.Add(material, (UInt32)id);
 
-                                                material = "";
+                                                is_saved = true;
                                             }
 
                                             material = mtl_words[1];
-                                            is_save = false;
+                                            texture_name = "";
+
                                             break;
                                         }
                                     case ("map_Kd"): {
                                             texture_name = mtl_words[1];
+                                            is_saved = false;
 
-                                            materials.Add(new Material(texture_name));
-                                            material_to_texture.Add(material, texture_name);
-                                            int id = material_to_id.Count;
-                                            material_to_id.Add(material, (UInt32)id);
-                                            
-                                            material = "";
-                                            is_save = true;
+                                            break;
+                                        }
+                                    case ("Kd"): {
+                                            int red = (int)(255.0f * float.Parse(mtl_words[1]));
+                                            int green = (int)(255.0f * float.Parse(mtl_words[2]));
+                                            int blue = (int)(255.0f * float.Parse(mtl_words[3]));
+                                            texture_name = "color_texture " + red + " " + green + " " + blue;
+                                            is_saved = false;
+
                                             break;
                                         }
                                 }
+                            }
+
+                            if (is_saved == false)
+                            {
+                                if (texture_name == "") texture_name = "TextureNotFound.bmp";
+
+                                materials.Add(new Material(texture_name));
+                                material_to_texture.Add(material, texture_name);
+                                int id = material_to_id.Count;
+                                material_to_id.Add(material, (UInt32)id);
+
+                                is_saved = true;
                             }
 
                             break;
@@ -195,7 +213,8 @@ namespace MeshReducer
                 for (int i = 0; i < material.indices.Count; i++)
                 {
                     Vector3 v = vertices[material.indices[i].id_vertex];
-                    Vector2 t = text_coords[material.indices[i].id_textcoord];
+                    Vector2 t = new Vector2(0, 0);
+                    if (material.indices[i].id_textcoord != -1) t = text_coords[material.indices[i].id_textcoord];
                     
                     Mesh.Vertex vertex = new Mesh.Vertex(v, t);
                     mat.vertices.Add(vertex);
