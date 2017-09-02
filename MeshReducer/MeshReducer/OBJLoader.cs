@@ -34,13 +34,15 @@ namespace MeshReducer
         {
             public string texture_filename;
             public Texture texture;
+            public string obj_material;
 
             public List<Vertex> indices;
 
-            public Material(string texture_filename)
+            public Material(string texture_filename, string obj_material)
             {
                 indices = new List<Vertex>();
                 this.texture_filename = texture_filename;
+                this.obj_material = obj_material;
                 texture = new Texture();
             }
             
@@ -121,7 +123,7 @@ namespace MeshReducer
                                             {
                                                 if (texture_name == "") texture_name = "TextureNotFound.bmp";
 
-                                                materials.Add(new Material(texture_name));
+                                                materials.Add(new Material(texture_name, material));
                                                 material_to_texture.Add(material, texture_name);
                                                 int id = material_to_id.Count;
                                                 material_to_id.Add(material, (UInt32)id);
@@ -144,8 +146,11 @@ namespace MeshReducer
                                             int red = (int)(255.0f * float.Parse(mtl_words[1]));
                                             int green = (int)(255.0f * float.Parse(mtl_words[2]));
                                             int blue = (int)(255.0f * float.Parse(mtl_words[3]));
-                                            texture_name = "color_texture " + red + " " + green + " " + blue;
+                                            texture_name = "color_texture_" + red + "_" + green + "_" + blue + ".bmp";
                                             is_saved = false;
+
+                                            // save color texture
+                                            Texture.SaveToBMP(directory + "/" + texture_name, red, green, blue, 255);
 
                                             break;
                                         }
@@ -156,7 +161,7 @@ namespace MeshReducer
                             {
                                 if (texture_name == "") texture_name = "TextureNotFound.bmp";
 
-                                materials.Add(new Material(texture_name));
+                                materials.Add(new Material(texture_name, material));
                                 material_to_texture.Add(material, texture_name);
                                 int id = material_to_id.Count;
                                 material_to_id.Add(material, (UInt32)id);
@@ -209,6 +214,7 @@ namespace MeshReducer
             foreach (Material material in materials)
             {
                 Mesh.Material mat = new Mesh.Material(material.texture_filename);
+                mat.obj_material = material.obj_material;
 
                 for (int i = 0; i < material.indices.Count; i++)
                 {

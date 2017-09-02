@@ -74,6 +74,7 @@ namespace MeshReducer
         {
             public string texture_name;
             public Texture texture;
+            public string obj_material;
 
             public List<Vertex> vertices;
 
@@ -297,8 +298,11 @@ namespace MeshReducer
                 {
                     if (vertex == null) { continue; }
 
-                    vertex.matrices.Clear();
-                    vertex.matrices = null;
+                    if (vertex.matrices != null)
+                    {
+                        vertex.matrices.Clear();
+                        vertex.matrices = null;
+                    }
                 }
 
                 material.vertices.Clear();

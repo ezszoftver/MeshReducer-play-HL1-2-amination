@@ -94,5 +94,38 @@ namespace MeshReducer
                 Gl.glDeleteTextures(1, id);
             }
         }
+
+        public static void SaveToBMP(string dir_and_filename, int red, int green, int blue, int alpha)
+        {
+            byte[] data = new byte[8 * 8 * 4];
+            for (int i = 0; i < data.Length; i += 4)
+            {
+                data[i + 0] = (byte)alpha;
+                data[i + 1] = (byte)red;
+                data[i + 2] = (byte)green;
+                data[i + 3] = (byte)blue;
+            }
+            
+            Bitmap bitmap = GetDataPicture(8, 8, red, green, blue, alpha);
+            bitmap.Save(dir_and_filename, ImageFormat.Bmp);
+
+            data = null;
+        }
+
+        static public Bitmap GetDataPicture(int w, int h, int red, int green, int blue, int alpha)
+        {
+            Bitmap pic = new Bitmap(w, h, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+            for (int x = 0; x < w; x++)
+            {
+                for (int y = 0; y < h; y++)
+                {
+                    Color c = Color.FromArgb(alpha, red, green, blue);
+                    pic.SetPixel(x, y, c);
+                }
+            }
+
+            return pic;
+        }
     }
 }

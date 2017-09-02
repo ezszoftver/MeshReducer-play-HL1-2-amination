@@ -329,7 +329,7 @@ namespace MeshReducer
             {
                 Mesh.Material material = mesh.materials[m];
 
-                file.WriteLine("usemtl material_" + m);
+                file.WriteLine("usemtl " + material.obj_material);
 
                 for (int i = 0; i < material.vertices.Count; i += 3)
                 {

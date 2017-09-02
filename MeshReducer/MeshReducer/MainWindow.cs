@@ -455,21 +455,7 @@ namespace MeshReducer
                 percent += step;
                 label_load_obj.Text = (int)percent + " %";
                 label_load_obj.Update();
-
-                if (material.texture_name.Split(new char[] { ' ' })[0] == "color_texture")
-                {
-                    int red   = int.Parse(material.texture_name.Split(new char[] { ' ' })[1]);
-                    int green = int.Parse(material.texture_name.Split(new char[] { ' ' })[2]);
-                    int blue  = int.Parse(material.texture_name.Split(new char[] { ' ' })[3]);
-                    
-                    if (!material.texture.Load(red, green, blue))
-                    {
-                        return;
-                    }
-
-                    continue;
-                }
-
+                
                 string image_filename = "";
                 if (material.texture_name.Contains(":"))
                 {
@@ -846,33 +832,20 @@ namespace MeshReducer
             if (mesh != null && mesh.is_loaded)
             {
                 full_mesh.is_loaded = false;
-                mesh = new Mesh(full_mesh);
-
+                
                 float weight = (100.0f - (float)trackBar_reduce_percent.Value + 1.0f) / 100.0f;
-                int end_vertices_count = (int)((float)mesh.GetVerticesCount() * weight);
+                int end_vertices_count = (int)((float)full_mesh.GetVerticesCount() * weight);
+
+                if (end_vertices_count > mesh.GetVerticesCount())
+                {
+                    mesh = new Mesh(full_mesh);
+                }
 
                 MeshReducer reducer = new MeshReducer(mesh);
 
-                float last_percent = 0.0f;
-                int num_vertices = mesh.GetVerticesCount() - end_vertices_count;
-                while (end_vertices_count < mesh.GetVerticesCount() && mesh.GetVerticesCount() > 3)
-                {
-                    int curr_vertices = mesh.GetVerticesCount() - end_vertices_count;
-                    float percent = (1.0f - ((float)curr_vertices / (float)num_vertices)) * 100.0f;
+                reducer.Reduce(end_vertices_count, progressBar_reduce, label_reduce);
 
-                    if ((percent - last_percent) * 100.0f >= 1.0f)
-                    {
-                        last_percent = percent;
-
-                        progressBar_reduce.Value = (int)percent;
-                        progressBar_reduce.Update();
-                        label_reduce.Text = ((int)percent) + " %";
-                        label_reduce.Update();
-                    }
-                    
-                    reducer.EraseLine();
-                }
-
+                progressBar_reduce.Maximum = 100;
                 progressBar_reduce.Value = 100;
                 progressBar_reduce.Update();
                 label_reduce.Text = 100 + " %";
