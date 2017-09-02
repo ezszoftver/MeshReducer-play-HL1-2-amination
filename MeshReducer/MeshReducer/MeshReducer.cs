@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.Windows.Forms;
 using System.IO;
 using System.Threading;
 using System.Numerics;
@@ -364,10 +365,14 @@ namespace MeshReducer
             }
         }
 
-        public void Reduce(int end_vertices, System.Windows.Forms.ProgressBar progress_bar, System.Windows.Forms.Label label)
+        public void Reduce(MainWindow window, int end_vertices, System.Windows.Forms.ProgressBar progress_bar, System.Windows.Forms.Label label)
         {
             progress_bar.Value = 0; progress_bar.Update();
             label.Text = "initializing"; label.Update();
+
+            DateTime elapsed_datetime;
+            DateTime current_datetime;
+            current_datetime = elapsed_datetime = DateTime.Now;
 
             // partitioning triangles
             part = new List<Triangle>[SIZE + 1, SIZE + 1, SIZE + 1];
@@ -435,7 +440,6 @@ namespace MeshReducer
                 end_vertices = PartGetVertices(/*triangles*/);
             }
             progress_bar.Maximum = PartGetVertices(/*triangles*/) - end_vertices;
-            float last_percent = 0.0f;
             int elapsed_vertices = PartGetVertices(/*triangles*/);
             int current_vertices = PartGetVertices(/*triangles*/);
 
@@ -446,8 +450,6 @@ namespace MeshReducer
 
             for (int i = PartGetVertices(/*triangles*/); i > end_vertices; i = PartGetVertices(/*triangles*/))
             {
-                
-            
                 //System.Console.WriteLine("----------------------------------------------------------");
                 bool is_ok;
                 do
@@ -605,20 +607,22 @@ namespace MeshReducer
                 int value = (int)((float)progress_bar.Maximum * (1.0f - ((float)(i - end_vertices) / (float)progress_bar.Maximum)));
                 if (value > progress_bar.Maximum) value = progress_bar.Maximum;
                 float percent = (((float)value / (float)progress_bar.Maximum) * 100.0f);
-            
-                if ((percent - last_percent) >= 0.01f)
+
+                current_datetime = DateTime.Now;
+                TimeSpan diff = current_datetime - elapsed_datetime;
+                float dt = (float)diff.TotalMilliseconds / 1000.0f;
+                if (dt >= 0.05f)
                 {
+                    elapsed_datetime = current_datetime;
+
                     progress_bar.Value = value;
                     label.Text = percent.ToString("###0.00") + " %";
                     progress_bar.Update();
                     label.Update();
-            
-                    last_percent = percent;
-            
-                    //bad_edges.Clear();
-                    //System.GC.Collect();
+
+                    Application.DoEvents();
                 }
-            
+
                 elapsed_vertices = current_vertices;
                 current_vertices = PartGetVertices(/*triangles*/);
                 if (elapsed_vertices == current_vertices)

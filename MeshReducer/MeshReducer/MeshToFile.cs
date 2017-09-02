@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.Windows.Forms;
 using System.IO;
 using System.Numerics;
 
@@ -329,7 +330,8 @@ namespace MeshReducer
             {
                 Mesh.Material material = mesh.materials[m];
 
-                file.WriteLine("usemtl " + material.obj_material);
+                if (material.obj_material == null || material.obj_material.Count() == 0) file.WriteLine("usemtl material_" + m);
+                else file.WriteLine("usemtl " + material.obj_material);
 
                 for (int i = 0; i < material.vertices.Count; i += 3)
                 {
@@ -385,8 +387,10 @@ namespace MeshReducer
 
                         label.Text = (int)(100.0f * ((float)face / (float)vertices_count)) + " %";
                         label.Update();
+
+                        Application.DoEvents();
                     }
-                    
+
                     face += 3;
                 }
 
@@ -518,6 +522,8 @@ namespace MeshReducer
 
                         label.Text = (int)(100.0f * ((float)last_face / (float)vertices_count)) + " %";
                         label.Update();
+
+                        Application.DoEvents();
                     }
 
                     face += 3;
@@ -696,6 +702,8 @@ namespace MeshReducer
 
                         label.Text = (int)(100.0f * ((float)last_face / (float)vertices_count)) + " %";
                         label.Update();
+
+                        Application.DoEvents();
                     }
 
                     face += 3;

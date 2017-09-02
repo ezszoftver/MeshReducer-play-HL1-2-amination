@@ -413,8 +413,13 @@ namespace MeshReducer
 
         private void button1_Click(object sender, EventArgs e)
         {
+            this.timer1.Stop();
+            this.tabControl1.Enabled = false;
+
             if (DeleteOldAndCreateNew() == false)
             {
+                this.timer1.Start();
+                this.tabControl1.Enabled = true;
                 return;
             }
             
@@ -423,6 +428,8 @@ namespace MeshReducer
             theDialog.Filter = "OBJ files|*.obj";
             theDialog.InitialDirectory = @"./";
             if (theDialog.ShowDialog() != DialogResult.OK) {
+                this.timer1.Start();
+                this.tabControl1.Enabled = true;
                 return;
             }
             
@@ -432,18 +439,22 @@ namespace MeshReducer
             string extension = Path.GetExtension(fullpath).ToLower();
 
             if (extension != ".obj") {
+                this.timer1.Start();
+                this.tabControl1.Enabled = true;
                 return;
             }
 
             if (!obj.Load(directory, filename, mesh)) {
+                this.timer1.Start();
+                this.tabControl1.Enabled = true;
                 return;
             }
 
-            progressBar_load_obj.Maximum = 10 + obj.materials.Count;
-            progressBar_load_obj.Value = 10;
+            progressBar_load_obj.Maximum = obj.materials.Count;
+            progressBar_load_obj.Value = 0;
 
-            float step = 100.0f / (10.0f + (float)obj.materials.Count);
-            float percent = 10.0f * step;
+            float step = 100.0f / (float)obj.materials.Count;
+            float percent = 0;
             label_load_obj.Text = percent + " %";
 
             // load textures
@@ -455,7 +466,9 @@ namespace MeshReducer
                 percent += step;
                 label_load_obj.Text = (int)percent + " %";
                 label_load_obj.Update();
-                
+
+                Application.DoEvents();
+
                 string image_filename = "";
                 if (material.texture_name.Contains(":"))
                 {
@@ -469,6 +482,8 @@ namespace MeshReducer
                 {
                     if (!material.texture.Load("TextureNotFound.bmp"))
                     {
+                        this.timer1.Start();
+                        this.tabControl1.Enabled = true;
                         return;
                     }
                 }
@@ -497,10 +512,16 @@ namespace MeshReducer
             mesh.is_loaded = true;
 
             full_mesh = new Mesh(mesh);
+
+            this.timer1.Start();
+            this.tabControl1.Enabled = true;
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
+            this.timer1.Stop();
+            this.tabControl1.Enabled = false;
+
             string filename = textBox_obj_filename.Text;
             if (mesh != null && mesh.is_loaded && directory.Length > 0 && filename.Length > 0)
             {
@@ -524,6 +545,9 @@ namespace MeshReducer
                 label_save_obj.Text = "100 %";
                 label_save_obj.Update();
             }
+
+            this.timer1.Start();
+            this.tabControl1.Enabled = true;
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -643,8 +667,13 @@ namespace MeshReducer
 
         private void button3_Click_1(object sender, EventArgs e)
         {
+            this.timer1.Stop();
+            this.tabControl1.Enabled = false;
+
             if (DeleteOldAndCreateNew() == false)
             {
+                this.timer1.Start();
+                this.tabControl1.Enabled = true;
                 return;
             }
 
@@ -660,6 +689,8 @@ namespace MeshReducer
             theDialog.InitialDirectory = @"./";
             if (theDialog.ShowDialog() != DialogResult.OK)
             {
+                this.timer1.Start();
+                this.tabControl1.Enabled = true;
                 return;
             }
 
@@ -670,11 +701,15 @@ namespace MeshReducer
 
             if (extension != ".smd")
             {
+                this.timer1.Start();
+                this.tabControl1.Enabled = true;
                 return;
             }
 
             if (!smd.LoadReference(directory, filename, mesh))
             {
+                this.timer1.Start();
+                this.tabControl1.Enabled = true;
                 return;
             }
 
@@ -688,7 +723,16 @@ namespace MeshReducer
 
             foreach (Mesh.Material material in mesh.materials)
             {
-                string image_filename = directory + @"/" + material.texture_name;
+                string image_filename = "";
+                if (material.texture_name.Contains(":"))
+                {
+                    image_filename = material.texture_name;
+                }
+                else
+                {
+                    image_filename = directory + @"/" + material.texture_name;
+                }
+
                 if (!material.texture.Load(image_filename))
                 {
                     if (!material.texture.Load("TextureNotFound.bmp"))
@@ -703,6 +747,8 @@ namespace MeshReducer
                 percent = ((float)step / (float)mesh.materials.Count) * 100.0f;
                 label_load_smd.Text = ((int)percent) + " %";
                 label_load_smd.Update();
+
+                Application.DoEvents();
             }
 
             progressBar_load_smd.Value = mesh.materials.Count;
@@ -728,12 +774,20 @@ namespace MeshReducer
             mesh.is_loaded = true;
 
             full_mesh = new Mesh(mesh);
+
+            this.timer1.Start();
+            this.tabControl1.Enabled = true;
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
+            this.timer1.Stop();
+            this.tabControl1.Enabled = false;
+
             if (smd == null)
             {
+                this.timer1.Start();
+                this.tabControl1.Enabled = true;
                 return;
             }
 
@@ -743,6 +797,8 @@ namespace MeshReducer
             theDialog.InitialDirectory = @"./";
             if (theDialog.ShowDialog() != DialogResult.OK)
             {
+                this.timer1.Start();
+                this.tabControl1.Enabled = true;
                 return;
             }
 
@@ -753,16 +809,23 @@ namespace MeshReducer
 
             if (extension != ".smd")
             {
+                this.timer1.Start();
+                this.tabControl1.Enabled = true;
                 return;
             }
 
             string anim_name = filename;
             if (!smd.AddAnimation(directory, filename, anim_name, 1.0f))
             {
+                this.timer1.Start();
+                this.tabControl1.Enabled = true;
                 return;
             }
 
             comboBox_animations.Items.Add(anim_name);
+
+            this.timer1.Start();
+            this.tabControl1.Enabled = true;
         }
 
         private void comboBox_animations_SelectedIndexChanged(object sender, EventArgs e)
@@ -781,6 +844,9 @@ namespace MeshReducer
             string filename = textBox_smd_filename.Text;
             if (mesh != null && mesh.is_loaded && directory.Length > 0 && filename.Length > 0)
             {
+                this.timer1.Stop();
+                this.tabControl1.Enabled = false;
+
                 progressBar_smd_save.Maximum = 100;
                 progressBar_smd_save.Value = 0;
                 progressBar_smd_save.Update();
@@ -800,6 +866,9 @@ namespace MeshReducer
 
                 label_smd_save.Text = "100 %";
                 label_smd_save.Update();
+
+                this.timer1.Start();
+                this.tabControl1.Enabled = true;
             }
         }
 
@@ -827,10 +896,21 @@ namespace MeshReducer
         {
         }
 
+        private void Action()
+        {
+            Console.WriteLine("\nHandler not implemented...");
+            
+        }
+
+        // zzz
         private void button_calc_Click(object sender, EventArgs e)
         {
             if (mesh != null && mesh.is_loaded)
             {
+                this.timer1.Stop();
+
+                this.tabControl1.Enabled = false;
+
                 full_mesh.is_loaded = false;
                 
                 float weight = (100.0f - (float)trackBar_reduce_percent.Value + 1.0f) / 100.0f;
@@ -840,10 +920,10 @@ namespace MeshReducer
                 {
                     mesh = new Mesh(full_mesh);
                 }
-
+                
                 MeshReducer reducer = new MeshReducer(mesh);
 
-                reducer.Reduce(end_vertices_count, progressBar_reduce, label_reduce);
+                reducer.Reduce(this, end_vertices_count, progressBar_reduce, label_reduce);
 
                 progressBar_reduce.Maximum = 100;
                 progressBar_reduce.Value = 100;
@@ -852,6 +932,11 @@ namespace MeshReducer
                 label_reduce.Update();
 
                 mesh.is_loaded = true;
+
+                this.tabControl1.Enabled = true;
+
+                Application.AddMessageFilter(this);
+                this.timer1.Start();
             }
         }
 
