@@ -266,7 +266,7 @@ namespace MeshReducer
 
             foreach (Triangle tri in part[i, j, k])
             {
-                if (IsEqual(tri.A, vertex) || IsEqual(tri.B, vertex) || IsEqual(tri.C, vertex))
+                if (tri.A.Equals(vertex) || tri.B.Equals(vertex) || tri.C.Equals(vertex))
                 {
                     Vector3 local_normal = tri.GetNormal();
 

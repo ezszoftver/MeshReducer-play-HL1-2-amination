@@ -137,7 +137,16 @@ namespace MeshReducer
                                             break;
                                         }
                                     case ("map_Kd"): {
-                                            texture_name = mtl_words[1];
+                                            //texture_name = mtl_words[1];
+                                            texture_name = String.Join(" ", mtl_words, 1, mtl_words.Count() - 1);
+                                            is_saved = false;
+
+                                            break;
+                                        }
+                                    case ("mmap_Kd"):
+                                        {
+                                            //texture_name = mtl_words[1];
+                                            texture_name = String.Join(" ", mtl_words, 1, mtl_words.Count() - 1);
                                             is_saved = false;
 
                                             break;

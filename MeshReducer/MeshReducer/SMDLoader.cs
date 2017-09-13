@@ -106,7 +106,20 @@ namespace MeshReducer
                 {
                     if (words[0] == "end") { is_nodes = false; continue; }
 
-                    nodes.Add(new Node(words[1], int.Parse(words[2])));
+                    string node_name = "";
+                    int i = 1;
+                    bool words_ok = false;
+                    while (!words_ok)
+                    {
+                        node_name += ((i == 1) ? "" : " ") + words[i];
+                        if (words[i][words[i].Length - 1] == '"')
+                        {
+                            words_ok = true;
+                        }
+                        i++;
+                    }
+
+                    nodes.Add(new Node(node_name, int.Parse(words[i])));
                 }
 
                 if (is_skeleton_header)
@@ -127,12 +140,17 @@ namespace MeshReducer
                 {
                     if (words[0] == "end") { is_triangles_texturename = false; continue; }
 
-                    string texture_name = words[0];
+                    string texture_name = line;// String.Join(" ", words);
 
-                    if (!material_to_id.ContainsKey(texture_name)) {
+                    if (!material_to_id.ContainsKey(texture_name))
+                    {
                         mat_id++;
                         material_to_id.Add(texture_name, mat_id);
                         mesh.materials.Add(new Mesh.Material(texture_name));
+                    }
+                    else
+                    {
+                        mat_id = material_to_id[texture_name];
                     }
 
                     is_triangles_texturename = false;
