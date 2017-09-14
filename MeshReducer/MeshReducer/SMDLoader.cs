@@ -144,7 +144,7 @@ namespace MeshReducer
 
                     if (!material_to_id.ContainsKey(texture_name))
                     {
-                        mat_id++;
+                        mat_id = material_to_id.Count;
                         material_to_id.Add(texture_name, mat_id);
                         mesh.materials.Add(new Mesh.Material(texture_name));
                     }
