@@ -83,6 +83,10 @@ namespace MeshReducer
                             break;
                         }
                     case ("v"): {
+                            words[1] = words[1].Replace(',', '.');
+                            words[2] = words[2].Replace(',', '.');
+                            words[3] = words[3].Replace(',', '.');
+
                             Vector3 v = new Vector3(float.Parse(words[1]), float.Parse(words[2]), float.Parse(words[3]));
                             vertices.Add(v);
 
@@ -98,6 +102,9 @@ namespace MeshReducer
                             break;
                         }
                     case ("vt"): {
+                            words[1] = words[1].Replace(',', '.');
+                            words[2] = words[2].Replace(',', '.');
+
                             Vector2 vt = new Vector2(float.Parse(words[1]), float.Parse(words[2]));
                             text_coords.Add(vt);
                             break;
@@ -152,6 +159,10 @@ namespace MeshReducer
                                             break;
                                         }
                                     case ("Kd"): {
+                                            mtl_words[1] = mtl_words[1].Replace(',', '.');
+                                            mtl_words[2] = mtl_words[2].Replace(',', '.');
+                                            mtl_words[3] = mtl_words[3].Replace(',', '.');
+
                                             int red = (int)(255.0f * float.Parse(mtl_words[1]));
                                             int green = (int)(255.0f * float.Parse(mtl_words[2]));
                                             int blue = (int)(255.0f * float.Parse(mtl_words[3]));
