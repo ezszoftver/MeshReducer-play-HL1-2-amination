@@ -1,0 +1,10 @@
+/mnt/3TB/Progs/Learn/GDF/Zarovizsga/MeshReducer/MeshReducer/obj/Debug/.NETFramework,Version=v4.6.AssemblyAttribute.cs
+/mnt/3TB/Progs/Learn/GDF/Zarovizsga/MeshReducer/MeshReducer/obj/Debug/MeshReducer.MainWindow.resources
+/mnt/3TB/Progs/Learn/GDF/Zarovizsga/MeshReducer/MeshReducer/obj/Debug/MeshReducer.Properties.Resources.resources
+/mnt/3TB/Progs/Learn/GDF/Zarovizsga/MeshReducer/MeshReducer/bin/Debug/MeshReducer.exe.config
+/mnt/3TB/Progs/Learn/GDF/Zarovizsga/MeshReducer/MeshReducer/bin/Debug/MeshReducer.pdb
+/mnt/3TB/Progs/Learn/GDF/Zarovizsga/MeshReducer/MeshReducer/bin/Debug/MeshReducer.exe
+/mnt/3TB/Progs/Learn/GDF/Zarovizsga/MeshReducer/MeshReducer/obj/Debug/MeshReducer.exe
+/mnt/3TB/Progs/Learn/GDF/Zarovizsga/MeshReducer/MeshReducer/obj/Debug/MeshReducer.pdb
+/mnt/3TB/Progs/Learn/GDF/Zarovizsga/MeshReducer/MeshReducer/bin/Debug/Tao.OpenGl.dll
+/mnt/3TB/Progs/Learn/GDF/Zarovizsga/MeshReducer/MeshReducer/bin/Debug/Tao.Platform.Windows.dll
