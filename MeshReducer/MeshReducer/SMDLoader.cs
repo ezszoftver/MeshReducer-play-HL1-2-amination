@@ -93,6 +93,7 @@ namespace MeshReducer
             bool is_triangles_texturename = false;
             bool is_triangles_v = false;
             int is_triangles_vrepeat = 0;
+            bool is_reference_file = false;
 
             foreach (string line in lines)
             {
@@ -100,7 +101,7 @@ namespace MeshReducer
 
                 if (words[0] == "nodes") { is_nodes = true; continue; }
                 if (words[0] == "skeleton") { is_skeleton_header = true; continue; }
-                if (words[0] == "triangles") { is_triangles_texturename = true; continue; }
+                if (words[0] == "triangles") { is_triangles_texturename = true; is_reference_file = true; continue; }
                 
                 if (is_nodes)
                 {
@@ -132,8 +133,25 @@ namespace MeshReducer
                 if (is_skeleton)
                 {
                     if (words[0] == "end") { is_skeleton = false; continue; }
+                    if (words[0] == "time" && int.Parse(words[1]) > 0) { return false; }
 
-                    reference_skeleton.bones.Add(new Bone(new Vector3(float.Parse(words[1]), float.Parse(words[2]), float.Parse(words[3])), new Vector3(float.Parse(words[4]), float.Parse(words[5]), float.Parse(words[6]))));
+                    reference_skeleton.bones.Add(
+                        new Bone
+                        (
+                            new Vector3
+                            (
+                                float.Parse(words[1]), 
+                                float.Parse(words[2]), 
+                                float.Parse(words[3])
+                            ), 
+                            new Vector3
+                            (
+                                float.Parse(words[4]), 
+                                float.Parse(words[5]), 
+                                float.Parse(words[6])
+                            )
+                        )
+                    );
                 }
 
                 if (is_triangles_texturename)
@@ -266,7 +284,11 @@ namespace MeshReducer
                 mesh.inverse_transforms_reference[i] = invert;
             }
 
-            return true;
+            if (is_reference_file == true)
+            {
+                return true;
+            }
+            return false;
         }
 
         public bool AddAnimation(string directory, string filename, string anim_name, float fps)
@@ -281,10 +303,45 @@ namespace MeshReducer
 
             bool is_time_or_end = false;
             bool is_time = false;
+            bool is_nodes = false;
+
+            int node_id = 0;
 
             foreach (string line in lines)
             {
                 string[] words = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (words[0] == "nodes") { is_nodes = true; continue; }
+
+                if (is_nodes)
+                {
+                    if (words[0] == "end") { is_nodes = false; continue; }
+
+                    string node_name = "";
+                    int i = 1;
+                    bool words_ok = false;
+                    while (!words_ok)
+                    {
+                        node_name += ((i == 1) ? "" : " ") + words[i];
+                        if (words[i][words[i].Length - 1] == '"')
+                        {
+                            words_ok = true;
+                        }
+                        i++;
+                    }
+
+                    //nodes.Add(new Node(node_name, int.Parse(words[i])));
+                    int parent_id = int.Parse(words[i]);
+                    if ((node_id + 1) > nodes.Count)
+                    {
+                        return false;
+                    }
+                    if (nodes[node_id].name != node_name || nodes[node_id].parent_id != parent_id)
+                    {
+                        return false;
+                    }
+                    node_id++;
+                }
 
                 if (words[0] == "skeleton")
                 {
@@ -330,6 +387,11 @@ namespace MeshReducer
                 {
                     skeleton.bones.Add(new Bone(new Vector3(float.Parse(words[1]), float.Parse(words[2]), float.Parse(words[3])), new Vector3(float.Parse(words[4]), float.Parse(words[5]), float.Parse(words[6]))));
                 }
+            }
+
+            if (animations.Last().times.Count == 1)
+            {
+                return false;
             }
 
             return true;
